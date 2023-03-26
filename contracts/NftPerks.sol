@@ -4,16 +4,13 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "../interfaces/IERC2981.sol";
+import "./interfaces/IERC2981.sol";
+import "./interfaces/INftPerks.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-import "hardhat/console.sol";
-
-error MaxSupplyReached();
-
-contract BasicNft is ERC721, IERC2981, AccessControl, ReentrancyGuard {
+contract NftPerks is ERC721, INftPerks, IERC2981, AccessControl, ReentrancyGuard {
     string public constant TOKEN_URI = "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
-    uint256 private s_tokenCounter;
+    uint256 public tokenId;
     uint256 public immutable maxSupply;
 
     struct RoyaltyInfo {
@@ -38,28 +35,23 @@ contract BasicNft is ERC721, IERC2981, AccessControl, ReentrancyGuard {
         _grantRole(MANAGER_ROLE, msg.sender);
 
         setRoyalties(_receiver, 2500);
-        s_tokenCounter = 1;
         maxSupply = _maxSupply;
     }
 
     function mintNft(address _to) external onlyRole(MINTER_ROLE) nonReentrant {
         if (hasReachedCap()) revert MaxSupplyReached();
-        _safeMint(_to, s_tokenCounter);
-        emit NFTMinted(s_tokenCounter, _to);
-        s_tokenCounter = s_tokenCounter + 1;
+        _safeMint(_to, tokenId);
+        emit NFTMinted(tokenId, _to);
+        tokenId += 1;
     }
 
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
         return TOKEN_URI;
     }
 
-    function getTokenCounter() public view returns (uint256) {
-        return s_tokenCounter;
-    }
-
     function hasReachedCap() public view returns (bool) {
-        if (maxSupply <= s_tokenCounter) {
+        if (maxSupply <= tokenId) {
             return true;
         }
         return false;
@@ -70,7 +62,7 @@ contract BasicNft is ERC721, IERC2981, AccessControl, ReentrancyGuard {
     }
 
     function setRoyalties(address recipient, uint256 value) public onlyRole(MANAGER_ROLE) {
-        require(value <= 100000, "ERC2981Royalties: Too high");
+        if (value > 100000) revert InvalidValue();
 
         _royalties = RoyaltyInfo(recipient, value);
     }

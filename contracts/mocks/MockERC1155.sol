@@ -8,9 +8,9 @@ import "../interfaces/IERC2981.sol";
 error MaxSupplyReached(uint256 _tier);
 
 contract MockERC1155 is ERC1155, IERC2981, Ownable {
-    // uint256 public constant TIER1 = 1;
-    // uint256 public constant TIER2 = 2;
-    // uint256 public constant TIER3 = 3;
+    uint256 public constant TIER1 = 1;
+    uint256 public constant TIER2 = 2;
+    uint256 public constant TIER3 = 3;
     mapping(uint256 => uint256) public maxSupplyOf;
     mapping(uint256 => uint256) public circulatingSupplyOf;
 

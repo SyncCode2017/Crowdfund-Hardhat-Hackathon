@@ -38,24 +38,24 @@ export declare namespace IFundABusiness {
     tierCost: BigNumber;
   };
 
-  export type MilestoneCheckpointStruct = {
-    milestonePeriod: PromiseOrValue<BigNumberish>;
-    cumFractionToBeReleased: PromiseOrValue<BigNumberish>;
+  export type MilestoneStructStruct = {
+    milestoneNumber: PromiseOrValue<BigNumberish>;
+    fractionToBeReleased: PromiseOrValue<BigNumberish>;
   };
 
-  export type MilestoneCheckpointStructOutput = [BigNumber, BigNumber] & {
-    milestonePeriod: BigNumber;
-    cumFractionToBeReleased: BigNumber;
+  export type MilestoneStructStructOutput = [BigNumber, BigNumber] & {
+    milestoneNumber: BigNumber;
+    fractionToBeReleased: BigNumber;
   };
 
   export type NftTierContractStruct = {
     fundingTier: PromiseOrValue<BigNumberish>;
-    nftContract: PromiseOrValue<string>;
+    nftTokenAddress: PromiseOrValue<string>;
   };
 
   export type NftTierContractStructOutput = [BigNumber, string] & {
     fundingTier: BigNumber;
-    nftContract: string;
+    nftTokenAddress: string;
   };
 }
 
@@ -65,43 +65,54 @@ export interface FundABusinessInterface extends utils.Interface {
     "MANAGER_ROLE()": FunctionFragment;
     "PAUSER_ROLE()": FunctionFragment;
     "allowedErc20Token()": FunctionFragment;
+    "approveMilestoneAndReleaseFund(uint256)": FunctionFragment;
     "businessAddress()": FunctionFragment;
+    "businessBalance(address)": FunctionFragment;
+    "campaignDecisionTime()": FunctionFragment;
     "campaignEndTime()": FunctionFragment;
     "campaignStartTime()": FunctionFragment;
-    "cancelFundingRound()": FunctionFragment;
-    "claimNft()": FunctionFragment;
-    "claimNftFor(address)": FunctionFragment;
-    "claimRefund()": FunctionFragment;
-    "claimRefundFor(address)": FunctionFragment;
-    "contribute(uint256)": FunctionFragment;
-    "contributeOnBehalfOf(address[],uint256[],uint256)": FunctionFragment;
+    "claimNft(uint256)": FunctionFragment;
+    "claimNftFor(address,uint256)": FunctionFragment;
+    "claimRefund(uint256)": FunctionFragment;
+    "claimRefundFor(address,uint256)": FunctionFragment;
+    "closeFundingRound(uint8)": FunctionFragment;
+    "contribute(uint256,uint256)": FunctionFragment;
+    "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
+    "crowdditFeeFraction()": FunctionFragment;
     "cumFundReleased()": FunctionFragment;
+    "fiatContributeOnBehalfOf(address[],uint256[],uint256[],uint256)": FunctionFragment;
+    "fractionOfMilestone(uint256)": FunctionFragment;
     "fundRaised()": FunctionFragment;
-    "funderTier(address)": FunctionFragment;
+    "fundRaisedMinusFee()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
-    "hasClaimedNft(address)": FunctionFragment;
+    "hasClaimedNft(address,uint256)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "isCampaignSuccessful()": FunctionFragment;
+    "isAFunder(address)": FunctionFragment;
+    "isMilestoneApproved(uint256)": FunctionFragment;
+    "isOwnerOf(uint256,uint256)": FunctionFragment;
     "minTargetAmount()": FunctionFragment;
-    "nftTierContract(uint256)": FunctionFragment;
+    "nftContractOf(uint256)": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
     "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
-    "setCampaignPeriod(uint256[])": FunctionFragment;
+    "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
+    "setCrowdditFee(uint256)": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
-    "setMilestonesSchedule((uint256,uint256)[])": FunctionFragment;
-    "setNftContracts((uint256,address)[])": FunctionFragment;
+    "setMilestones((uint256,uint256)[])": FunctionFragment;
+    "setNftPerkContracts((uint256,address)[])": FunctionFragment;
     "setTargetAmounts(uint256[])": FunctionFragment;
     "setTreasuryAddress(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "targetAmount()": FunctionFragment;
+    "tierBalanceOf(address,uint256)": FunctionFragment;
     "tierCost(uint256)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "verdict()": FunctionFragment;
     "withdrawFundRaised()": FunctionFragment;
   };
 
@@ -111,43 +122,54 @@ export interface FundABusinessInterface extends utils.Interface {
       | "MANAGER_ROLE"
       | "PAUSER_ROLE"
       | "allowedErc20Token"
+      | "approveMilestoneAndReleaseFund"
       | "businessAddress"
+      | "businessBalance"
+      | "campaignDecisionTime"
       | "campaignEndTime"
       | "campaignStartTime"
-      | "cancelFundingRound"
       | "claimNft"
       | "claimNftFor"
       | "claimRefund"
       | "claimRefundFor"
+      | "closeFundingRound"
       | "contribute"
       | "contributeOnBehalfOf"
+      | "crowdditFeeFraction"
       | "cumFundReleased"
+      | "fiatContributeOnBehalfOf"
+      | "fractionOfMilestone"
       | "fundRaised"
-      | "funderTier"
+      | "fundRaisedMinusFee"
       | "getFundersAddresses"
       | "getRoleAdmin"
       | "grantRole"
       | "hasClaimedNft"
       | "hasRole"
-      | "isCampaignSuccessful"
+      | "isAFunder"
+      | "isMilestoneApproved"
+      | "isOwnerOf"
       | "minTargetAmount"
-      | "nftTierContract"
+      | "nftContractOf"
       | "pause"
       | "paused"
       | "renounceRole"
       | "revokeRole"
       | "setAllowedToken"
       | "setBusinessAddress"
-      | "setCampaignPeriod"
+      | "setCampaignAndDecisionPeriod"
+      | "setCrowdditFee"
       | "setFundingTiersAndCosts"
-      | "setMilestonesSchedule"
-      | "setNftContracts"
+      | "setMilestones"
+      | "setNftPerkContracts"
       | "setTargetAmounts"
       | "setTreasuryAddress"
       | "supportsInterface"
       | "targetAmount"
+      | "tierBalanceOf"
       | "tierCost"
       | "unpause"
+      | "verdict"
       | "withdrawFundRaised"
   ): FunctionFragment;
 
@@ -168,7 +190,19 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "approveMilestoneAndReleaseFund",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "businessAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "businessBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "campaignDecisionTime",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -180,45 +214,65 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "cancelFundingRound",
-    values?: undefined
+    functionFragment: "claimNft",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "claimNft", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "claimNftFor",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "claimRefund",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "claimRefundFor",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "closeFundingRound",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "contribute",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "contributeOnBehalfOf",
     values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "crowdditFeeFraction",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "cumFundReleased",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "fiatContributeOnBehalfOf",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fractionOfMilestone",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "fundRaised",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "funderTier",
-    values: [PromiseOrValue<string>]
+    functionFragment: "fundRaisedMinusFee",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getFundersAddresses",
@@ -234,22 +288,30 @@ export interface FundABusinessInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "hasClaimedNft",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isCampaignSuccessful",
-    values?: undefined
+    functionFragment: "isAFunder",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isMilestoneApproved",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isOwnerOf",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "minTargetAmount",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "nftTierContract",
+    functionFragment: "nftContractOf",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -271,19 +333,23 @@ export interface FundABusinessInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setCampaignPeriod",
+    functionFragment: "setCampaignAndDecisionPeriod",
     values: [PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setCrowdditFee",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setFundingTiersAndCosts",
     values: [IFundABusiness.FundingTierCostStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "setMilestonesSchedule",
-    values: [IFundABusiness.MilestoneCheckpointStruct[]]
+    functionFragment: "setMilestones",
+    values: [IFundABusiness.MilestoneStructStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "setNftContracts",
+    functionFragment: "setNftPerkContracts",
     values: [IFundABusiness.NftTierContractStruct[]]
   ): string;
   encodeFunctionData(
@@ -303,10 +369,15 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "tierBalanceOf",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tierCost",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "verdict", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdrawFundRaised",
     values?: undefined
@@ -329,7 +400,19 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "approveMilestoneAndReleaseFund",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "businessAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "businessBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "campaignDecisionTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -338,10 +421,6 @@ export interface FundABusinessInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "campaignStartTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "cancelFundingRound",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "claimNft", data: BytesLike): Result;
@@ -357,17 +436,36 @@ export interface FundABusinessInterface extends utils.Interface {
     functionFragment: "claimRefundFor",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "closeFundingRound",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "contribute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "contributeOnBehalfOf",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "crowdditFeeFraction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "cumFundReleased",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "fiatContributeOnBehalfOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fractionOfMilestone",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "fundRaised", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "funderTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fundRaisedMinusFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getFundersAddresses",
     data: BytesLike
@@ -382,16 +480,18 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isAFunder", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "isCampaignSuccessful",
+    functionFragment: "isMilestoneApproved",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isOwnerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "minTargetAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "nftTierContract",
+    functionFragment: "nftContractOf",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
@@ -410,7 +510,11 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setCampaignPeriod",
+    functionFragment: "setCampaignAndDecisionPeriod",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setCrowdditFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -418,11 +522,11 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setMilestonesSchedule",
+    functionFragment: "setMilestones",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setNftContracts",
+    functionFragment: "setNftPerkContracts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -441,8 +545,13 @@ export interface FundABusinessInterface extends utils.Interface {
     functionFragment: "targetAmount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "tierBalanceOf",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tierCost", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "verdict", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawFundRaised",
     data: BytesLike
@@ -619,54 +728,84 @@ export interface FundABusiness extends BaseContract {
 
     allowedErc20Token(overrides?: CallOverrides): Promise<[string]>;
 
+    approveMilestoneAndReleaseFund(
+      _milestoneNumber: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     businessAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    businessBalance(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    campaignDecisionTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     campaignEndTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     campaignStartTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    cancelFundingRound(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     claimNft(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     claimNftFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     claimRefund(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     claimRefundFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    closeFundingRound(
+      _reasonForEnding: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contributeOnBehalfOf(
+      _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    crowdditFeeFraction(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    cumFundReleased(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
+      _quantities: PromiseOrValue<BigNumberish>[],
       _totalAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    cumFundReleased(overrides?: CallOverrides): Promise<[BigNumber]>;
+    fractionOfMilestone(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     fundRaised(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    funderTier(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    fundRaisedMinusFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -683,6 +822,7 @@ export interface FundABusiness extends BaseContract {
 
     hasClaimedNft(
       arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -692,11 +832,25 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isCampaignSuccessful(overrides?: CallOverrides): Promise<[boolean]>;
+    isAFunder(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isMilestoneApproved(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isOwnerOf(
+      _tier: PromiseOrValue<BigNumberish>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    nftTierContract(
+    nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -729,8 +883,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setCampaignPeriod(
-      _campaignTimes: PromiseOrValue<BigNumberish>[],
+    setCampaignAndDecisionPeriod(
+      _campaignTimesAndDecision: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setCrowdditFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -739,13 +898,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setMilestonesSchedule(
-      _milestoneSchedule: IFundABusiness.MilestoneCheckpointStruct[],
+    setMilestones(
+      _milestonesData: IFundABusiness.MilestoneStructStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setNftContracts(
-      _nftTiersContracts: IFundABusiness.NftTierContractStruct[],
+    setNftPerkContracts(
+      _nftTierContracts: IFundABusiness.NftTierContractStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -766,6 +925,12 @@ export interface FundABusiness extends BaseContract {
 
     targetAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    tierBalanceOf(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     tierCost(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -774,6 +939,8 @@ export interface FundABusiness extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    verdict(overrides?: CallOverrides): Promise<[number]>;
 
     withdrawFundRaised(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -788,54 +955,84 @@ export interface FundABusiness extends BaseContract {
 
   allowedErc20Token(overrides?: CallOverrides): Promise<string>;
 
+  approveMilestoneAndReleaseFund(
+    _milestoneNumber: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   businessAddress(overrides?: CallOverrides): Promise<string>;
+
+  businessBalance(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  campaignDecisionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   campaignEndTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   campaignStartTime(overrides?: CallOverrides): Promise<BigNumber>;
 
-  cancelFundingRound(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   claimNft(
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   claimNftFor(
     _funder: PromiseOrValue<string>,
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   claimRefund(
+    _tier: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   claimRefundFor(
     _funder: PromiseOrValue<string>,
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  closeFundingRound(
+    _reasonForEnding: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contribute(
     _tier: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contributeOnBehalfOf(
+    _funder: PromiseOrValue<string>,
+    _tier: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
+
+  cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+
+  fiatContributeOnBehalfOf(
     _funders: PromiseOrValue<string>[],
     _tiers: PromiseOrValue<BigNumberish>[],
+    _quantities: PromiseOrValue<BigNumberish>[],
     _totalAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+  fractionOfMilestone(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   fundRaised(overrides?: CallOverrides): Promise<BigNumber>;
 
-  funderTier(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
 
@@ -852,6 +1049,7 @@ export interface FundABusiness extends BaseContract {
 
   hasClaimedNft(
     arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -861,11 +1059,25 @@ export interface FundABusiness extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isCampaignSuccessful(overrides?: CallOverrides): Promise<boolean>;
+  isAFunder(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isMilestoneApproved(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isOwnerOf(
+    _tier: PromiseOrValue<BigNumberish>,
+    _tokenId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
-  nftTierContract(
+  nftContractOf(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
@@ -898,8 +1110,13 @@ export interface FundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setCampaignPeriod(
-    _campaignTimes: PromiseOrValue<BigNumberish>[],
+  setCampaignAndDecisionPeriod(
+    _campaignTimesAndDecision: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setCrowdditFee(
+    _feeFraction: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -908,13 +1125,13 @@ export interface FundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setMilestonesSchedule(
-    _milestoneSchedule: IFundABusiness.MilestoneCheckpointStruct[],
+  setMilestones(
+    _milestonesData: IFundABusiness.MilestoneStructStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setNftContracts(
-    _nftTiersContracts: IFundABusiness.NftTierContractStruct[],
+  setNftPerkContracts(
+    _nftTierContracts: IFundABusiness.NftTierContractStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -935,6 +1152,12 @@ export interface FundABusiness extends BaseContract {
 
   targetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
+  tierBalanceOf(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   tierCost(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -943,6 +1166,8 @@ export interface FundABusiness extends BaseContract {
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  verdict(overrides?: CallOverrides): Promise<number>;
 
   withdrawFundRaised(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -957,48 +1182,84 @@ export interface FundABusiness extends BaseContract {
 
     allowedErc20Token(overrides?: CallOverrides): Promise<string>;
 
+    approveMilestoneAndReleaseFund(
+      _milestoneNumber: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     businessAddress(overrides?: CallOverrides): Promise<string>;
+
+    businessBalance(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    campaignDecisionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     campaignEndTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     campaignStartTime(overrides?: CallOverrides): Promise<BigNumber>;
 
-    cancelFundingRound(overrides?: CallOverrides): Promise<void>;
-
-    claimNft(overrides?: CallOverrides): Promise<void>;
-
-    claimNftFor(
-      _funder: PromiseOrValue<string>,
+    claimNft(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    claimRefund(overrides?: CallOverrides): Promise<void>;
+    claimNftFor(
+      _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimRefund(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     claimRefundFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    closeFundingRound(
+      _reasonForEnding: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     contributeOnBehalfOf(
+      _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
+
+    cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
+      _quantities: PromiseOrValue<BigNumberish>[],
       _totalAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+    fractionOfMilestone(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     fundRaised(overrides?: CallOverrides): Promise<BigNumber>;
 
-    funderTier(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
 
@@ -1015,6 +1276,7 @@ export interface FundABusiness extends BaseContract {
 
     hasClaimedNft(
       arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1024,11 +1286,25 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isCampaignSuccessful(overrides?: CallOverrides): Promise<boolean>;
+    isAFunder(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isMilestoneApproved(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isOwnerOf(
+      _tier: PromiseOrValue<BigNumberish>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nftTierContract(
+    nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -1059,8 +1335,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setCampaignPeriod(
-      _campaignTimes: PromiseOrValue<BigNumberish>[],
+    setCampaignAndDecisionPeriod(
+      _campaignTimesAndDecision: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setCrowdditFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1069,13 +1350,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setMilestonesSchedule(
-      _milestoneSchedule: IFundABusiness.MilestoneCheckpointStruct[],
+    setMilestones(
+      _milestonesData: IFundABusiness.MilestoneStructStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setNftContracts(
-      _nftTiersContracts: IFundABusiness.NftTierContractStruct[],
+    setNftPerkContracts(
+      _nftTierContracts: IFundABusiness.NftTierContractStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1096,12 +1377,20 @@ export interface FundABusiness extends BaseContract {
 
     targetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    tierBalanceOf(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tierCost(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    verdict(overrides?: CallOverrides): Promise<number>;
 
     withdrawFundRaised(overrides?: CallOverrides): Promise<void>;
   };
@@ -1200,54 +1489,84 @@ export interface FundABusiness extends BaseContract {
 
     allowedErc20Token(overrides?: CallOverrides): Promise<BigNumber>;
 
+    approveMilestoneAndReleaseFund(
+      _milestoneNumber: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     businessAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    businessBalance(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    campaignDecisionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     campaignEndTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     campaignStartTime(overrides?: CallOverrides): Promise<BigNumber>;
 
-    cancelFundingRound(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     claimNft(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     claimNftFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     claimRefund(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     claimRefundFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    closeFundingRound(
+      _reasonForEnding: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contributeOnBehalfOf(
+      _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
+
+    cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
+      _quantities: PromiseOrValue<BigNumberish>[],
       _totalAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
+    fractionOfMilestone(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     fundRaised(overrides?: CallOverrides): Promise<BigNumber>;
 
-    funderTier(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1264,6 +1583,7 @@ export interface FundABusiness extends BaseContract {
 
     hasClaimedNft(
       arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1273,11 +1593,25 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isCampaignSuccessful(overrides?: CallOverrides): Promise<BigNumber>;
+    isAFunder(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isMilestoneApproved(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isOwnerOf(
+      _tier: PromiseOrValue<BigNumberish>,
+      _tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nftTierContract(
+    nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1310,8 +1644,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setCampaignPeriod(
-      _campaignTimes: PromiseOrValue<BigNumberish>[],
+    setCampaignAndDecisionPeriod(
+      _campaignTimesAndDecision: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setCrowdditFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1320,13 +1659,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setMilestonesSchedule(
-      _milestoneSchedule: IFundABusiness.MilestoneCheckpointStruct[],
+    setMilestones(
+      _milestonesData: IFundABusiness.MilestoneStructStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setNftContracts(
-      _nftTiersContracts: IFundABusiness.NftTierContractStruct[],
+    setNftPerkContracts(
+      _nftTierContracts: IFundABusiness.NftTierContractStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1347,6 +1686,12 @@ export interface FundABusiness extends BaseContract {
 
     targetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    tierBalanceOf(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tierCost(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1355,6 +1700,8 @@ export interface FundABusiness extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    verdict(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdrawFundRaised(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1372,52 +1719,88 @@ export interface FundABusiness extends BaseContract {
 
     allowedErc20Token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    approveMilestoneAndReleaseFund(
+      _milestoneNumber: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     businessAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    businessBalance(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    campaignDecisionTime(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     campaignEndTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     campaignStartTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    cancelFundingRound(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     claimNft(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     claimNftFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     claimRefund(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     claimRefundFor(
       _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    closeFundingRound(
+      _reasonForEnding: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
+      _funder: PromiseOrValue<string>,
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    crowdditFeeFraction(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     cumFundReleased(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    fiatContributeOnBehalfOf(
+      _funders: PromiseOrValue<string>[],
+      _tiers: PromiseOrValue<BigNumberish>[],
+      _quantities: PromiseOrValue<BigNumberish>[],
+      _totalAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    fractionOfMilestone(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     fundRaised(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    funderTier(
-      arg0: PromiseOrValue<string>,
+    fundRaisedMinusFee(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1438,6 +1821,7 @@ export interface FundABusiness extends BaseContract {
 
     hasClaimedNft(
       arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1447,13 +1831,25 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isCampaignSuccessful(
+    isAFunder(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isMilestoneApproved(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isOwnerOf(
+      _tier: PromiseOrValue<BigNumberish>,
+      _tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nftTierContract(
+    nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1486,8 +1882,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setCampaignPeriod(
-      _campaignTimes: PromiseOrValue<BigNumberish>[],
+    setCampaignAndDecisionPeriod(
+      _campaignTimesAndDecision: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setCrowdditFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1496,13 +1897,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setMilestonesSchedule(
-      _milestoneSchedule: IFundABusiness.MilestoneCheckpointStruct[],
+    setMilestones(
+      _milestonesData: IFundABusiness.MilestoneStructStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setNftContracts(
-      _nftTiersContracts: IFundABusiness.NftTierContractStruct[],
+    setNftPerkContracts(
+      _nftTierContracts: IFundABusiness.NftTierContractStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1523,6 +1924,12 @@ export interface FundABusiness extends BaseContract {
 
     targetAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    tierBalanceOf(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     tierCost(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1531,6 +1938,8 @@ export interface FundABusiness extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    verdict(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     withdrawFundRaised(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

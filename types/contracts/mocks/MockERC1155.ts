@@ -41,6 +41,9 @@ export declare namespace MockERC1155 {
 
 export interface MockERC1155Interface extends utils.Interface {
   functions: {
+    "TIER1()": FunctionFragment;
+    "TIER2()": FunctionFragment;
+    "TIER3()": FunctionFragment;
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "circulatingSupplyOf(uint256)": FunctionFragment;
@@ -62,6 +65,9 @@ export interface MockERC1155Interface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "TIER1"
+      | "TIER2"
+      | "TIER3"
       | "balanceOf"
       | "balanceOfBatch"
       | "circulatingSupplyOf"
@@ -81,6 +87,9 @@ export interface MockERC1155Interface extends utils.Interface {
       | "uri"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "TIER1", values?: undefined): string;
+  encodeFunctionData(functionFragment: "TIER2", values?: undefined): string;
+  encodeFunctionData(functionFragment: "TIER3", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "balanceOf",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -164,6 +173,9 @@ export interface MockERC1155Interface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "TIER1", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "TIER2", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "TIER3", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfBatch",
@@ -323,6 +335,12 @@ export interface MockERC1155 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    TIER1(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    TIER2(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    TIER3(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     balanceOf(
       account: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -423,6 +441,12 @@ export interface MockERC1155 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
   };
+
+  TIER1(overrides?: CallOverrides): Promise<BigNumber>;
+
+  TIER2(overrides?: CallOverrides): Promise<BigNumber>;
+
+  TIER3(overrides?: CallOverrides): Promise<BigNumber>;
 
   balanceOf(
     account: PromiseOrValue<string>,
@@ -525,6 +549,12 @@ export interface MockERC1155 extends BaseContract {
   ): Promise<string>;
 
   callStatic: {
+    TIER1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TIER2(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TIER3(overrides?: CallOverrides): Promise<BigNumber>;
+
     balanceOf(
       account: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -683,6 +713,12 @@ export interface MockERC1155 extends BaseContract {
   };
 
   estimateGas: {
+    TIER1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TIER2(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TIER3(overrides?: CallOverrides): Promise<BigNumber>;
+
     balanceOf(
       account: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,
@@ -783,6 +819,12 @@ export interface MockERC1155 extends BaseContract {
   };
 
   populateTransaction: {
+    TIER1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    TIER2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    TIER3(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     balanceOf(
       account: PromiseOrValue<string>,
       id: PromiseOrValue<BigNumberish>,

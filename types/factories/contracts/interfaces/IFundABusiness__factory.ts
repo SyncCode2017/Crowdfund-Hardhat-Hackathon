@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "AlreadyApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "CampaignEnded",
     type: "error",
   },
@@ -23,6 +28,11 @@ const _abi = [
   {
     inputs: [],
     name: "CampaignUnsuccessful",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "DecisionMade",
     type: "error",
   },
   {
@@ -42,7 +52,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "InvalidTier",
+    name: "InvalidTierAndQuantity",
     type: "error",
   },
   {
@@ -67,11 +77,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "NoMultipleFunding",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "NoRefund",
     type: "error",
   },
@@ -82,7 +87,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "NotReceivingFunds",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NotTheOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ReleasingMoreThanFundRaised",
     type: "error",
   },
   {
@@ -205,6 +220,360 @@ const _abi = [
     ],
     name: "NFTRewardClaimed",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_milestoneNumber",
+        type: "uint256",
+      },
+    ],
+    name: "approveMilestoneAndReleaseFund",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+    ],
+    name: "claimNft",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_funder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+    ],
+    name: "claimNftFor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+    ],
+    name: "claimRefund",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_funder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+    ],
+    name: "claimRefundFor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "enum IFundABusiness.EndCampaign",
+        name: "_reasonForEnding",
+        type: "uint8",
+      },
+    ],
+    name: "closeFundingRound",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_quantity",
+        type: "uint256",
+      },
+    ],
+    name: "contribute",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_funder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_quantity",
+        type: "uint256",
+      },
+    ],
+    name: "contributeOnBehalfOf",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "_funders",
+        type: "address[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_tiers",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_quantities",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256",
+        name: "_totalAmount",
+        type: "uint256",
+      },
+    ],
+    name: "fiatContributeOnBehalfOf",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getFundersAddresses",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "isOwnerOf",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_allowedErc20Token",
+        type: "address",
+      },
+    ],
+    name: "setAllowedToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_businessAddress",
+        type: "address",
+      },
+    ],
+    name: "setBusinessAddress",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256[]",
+        name: "_campaignTimesAndDecision",
+        type: "uint256[]",
+      },
+    ],
+    name: "setCampaignAndDecisionPeriod",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_feeFraction",
+        type: "uint256",
+      },
+    ],
+    name: "setCrowdditFee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "fundingTier",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tierCost",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IFundABusiness.FundingTierCost[]",
+        name: "_fundingTiers",
+        type: "tuple[]",
+      },
+    ],
+    name: "setFundingTiersAndCosts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "milestoneNumber",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "fractionToBeReleased",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IFundABusiness.MilestoneStruct[]",
+        name: "_milestonesData",
+        type: "tuple[]",
+      },
+    ],
+    name: "setMilestones",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "fundingTier",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "nftTokenAddress",
+            type: "address",
+          },
+        ],
+        internalType: "struct IFundABusiness.NftTierContract[]",
+        name: "_nftTierContracts",
+        type: "tuple[]",
+      },
+    ],
+    name: "setNftPerkContracts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256[]",
+        name: "_amountsToBeRaised",
+        type: "uint256[]",
+      },
+    ],
+    name: "setTargetAmounts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_treasuryAddress",
+        type: "address",
+      },
+    ],
+    name: "setTreasuryAddress",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdrawFundRaised",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ] as const;
 
