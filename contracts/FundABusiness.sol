@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.16;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -10,10 +10,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "./interfaces/IFundABusiness.sol";
-import "./interfaces/IBasicNft.sol";
+import "./interfaces/INftPerks.sol";
 
-/**@title CROWDDIT Crowd-funding Contract
- * @author M.A. Adedeji
+/**@title MOAT Crowd-funding Contract
+ * @custom:security-contact hello@moat.com
  * @notice This contract is for crowd-funding a business by interested parties and
  * to release funds to the business in a transparent but monitored way. Rewards, in form
  * of NFTs are distributed to funders after the funding round has been declared successful.
@@ -25,36 +25,63 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     using ERC165Checker for address;
     using SafeERC20 for IERC20;
 
+    // address of the MOAT treasury wallet
     address private treasuryAddress;
+    // address of the busineess raising fund
     address public businessAddress;
+    // addresses of all the contributors
     address[] private fundersAddresses;
+    // unix time at which the funding campaign opens
     uint256 public campaignStartTime;
+    // unix time at which the funding campaign closes
     uint256 public campaignEndTime;
+    // unix time at which decision period ends
     uint256 public campaignDecisionTime;
+    // minimum amount of tokens that the business wishes to raise
     uint256 public minTargetAmount;
+    // optimum amount of tokens that the business wishes to raise
     uint256 public targetAmount;
+    // actual amount of tokens raised by the business
     uint256 public fundRaised;
+    // amount of tokens raised after MOAT fee has been deducted
     uint256 public fundRaisedMinusFee;
-    uint256 public crowdditFeeFraction; // e.g 5% = 5 * (10**5) / 100 = 5000
-    uint256 private crowdditFee;
+    // numerator of the %ge MOAT fee e.g 5% fee => 5 * (10**5) / 100 = 5000
+    uint256 public moatFeeNumerator;
+    // amount of tokens deducted as MOAT fees
+    uint256 private moatFee;
+    // cumulative amount of tokens released to business based on milestones completed so far
     uint256 public cumFundReleased;
+    // returns true if the NFT perks contracts have been set
     bool areNftTokensSet = false;
+    // returns true if the MOAT fee has been deducted
     bool isFeeTaken = false;
-
+    // ERC20 token approved for campaign funding e.g USDC, USDT
     IERC20 public allowedErc20Token;
 
+    // returns number of tier perks purchased by a funder
     mapping(address => mapping(uint256 => uint256)) public tierBalanceOf;
+    // returns the price of a tier
     mapping(uint256 => uint256) public tierCost;
-    mapping(uint256 => IBasicNft) public nftContractOf;
+    // returns the corresponding  NFT contract of a tier perk
+    mapping(uint256 => INftPerks) public nftContractOf;
+    // returns true if a given funder has claimed his NFT perk
     mapping(address => mapping(uint256 => bool)) public hasClaimedNft;
+    // returns true if a given address has contributed for the curent campaign
     mapping(address => bool) public isAFunder;
+    // returns the numerator of the fraction of fund to be released after a milestone has been approved
     mapping(uint256 => uint256) public fractionOfMilestone;
+    // returns true if a given milestone has been approved
     mapping(uint256 => bool) public isMilestoneApproved;
+    // returns the amount of tokens available for the business to claim
     mapping(address => uint256) public businessBalance;
 
+    // array of tiers available and thier prices
     FundingTierCost[] fundingTiersCosts;
+    // array of tiers available and their corresponding NFT contracts
     NftTierContract[] nftTierContracts;
+    // decision made whether the campaign was sucessful
     CampaignState public verdict;
+    // reason for closing the campaign abruptly
     EndCampaign private reasonForEnding;
 
     // access control roles
@@ -76,7 +103,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         setTreasuryAddress(_treasuryAddress);
         setBusinessAddress(_businessAddress);
         setMilestones(_milestonesData);
-        setCrowdditFee(_feeFraction);
+        setMOATFee(_feeFraction);
         verdict = CampaignState.UNDECIDED;
     }
 
@@ -84,17 +111,17 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     //////////////// Modifiers //////////////////////
     /////////////////////////////////////////////////
 
+    // checks whether the given is zero address
     modifier noZeroAddress(address newAddress) {
         if (newAddress == address(0)) revert ZeroAddress();
         _;
     }
-
+    // checks whether the given address has contributed for the current campaign
     modifier onlyFunders(address _funder) {
         if (!isAFunder[_funder]) revert NotAFunder();
         _;
     }
-
-    // check if nft token address is set
+    // checks if nft token address is set
     modifier nftTokensAreSet() {
         if (!areNftTokensSet) revert NftTokensNotSet();
         _;
@@ -104,18 +131,21 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     //////////////// Setters Functions //////////////
     /////////////////////////////////////////////////
 
+    ///@dev sets the allowed ERC20 tokens for the campaign
     function setAllowedToken(address _allowedErc20Token) public onlyRole(MANAGER_ROLE) noZeroAddress(_allowedErc20Token) {
         allowedErc20Token = IERC20(_allowedErc20Token);
     }
 
+    ///@dev sets the NFT perks contracts
     function setNftPerkContracts(NftTierContract[] memory _nftTierContracts) external onlyRole(MANAGER_ROLE) {
         for (uint256 i = 0; i < _nftTierContracts.length; ++i) {
             if (_nftTierContracts[i].nftTokenAddress == address(0)) revert ZeroAddress();
-            nftContractOf[_nftTierContracts[i].fundingTier] = IBasicNft(_nftTierContracts[i].nftTokenAddress);
+            nftContractOf[_nftTierContracts[i].fundingTier] = INftPerks(_nftTierContracts[i].nftTokenAddress);
         }
         areNftTokensSet = true;
     }
 
+    ///@dev sets the MOAT treasury address
     function setTreasuryAddress(address _treasuryAddress) public onlyRole(MANAGER_ROLE) noZeroAddress(_treasuryAddress) {
         treasuryAddress = _treasuryAddress;
     }
@@ -125,6 +155,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         businessAddress = _businessAddress;
     }
 
+    ///@dev sets the available tiers and their corresponding prices
     function setFundingTiersAndCosts(FundingTierCost[] memory _fundingTiers) public onlyRole(MANAGER_ROLE) {
         if (block.timestamp > campaignStartTime) revert TooLateToChange();
         for (uint256 i = 0; i < _fundingTiers.length; ++i) {
@@ -157,6 +188,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         }
     }
 
+    ///@dev sets the milestones
     function setMilestones(MilestoneStruct[] memory _milestonesData) public onlyRole(MANAGER_ROLE) {
         for (uint256 i = 0; i < _milestonesData.length; ++i) {
             if (_milestonesData[i].fractionToBeReleased > 100000) revert FractionTooHigh();
@@ -165,10 +197,10 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     }
 
     /// @param _feeFraction e.g 5% => 5 * (10**5) / 100 = 5000
-    function setCrowdditFee(uint256 _feeFraction) public onlyRole(MANAGER_ROLE) {
+    function setMOATFee(uint256 _feeFraction) public onlyRole(MANAGER_ROLE) {
         if (_feeFraction > 100000) revert InvalidValues();
         if (block.timestamp > campaignStartTime) revert TooLateToChange();
-        crowdditFeeFraction = _feeFraction;
+        moatFeeNumerator = _feeFraction;
     }
 
     //////////////////////////////////////////////////
@@ -261,6 +293,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         // get the amount to release from the milestone schedule
         uint256 _amount = businessBalance[businessAddress];
         if (_amount <= 0) revert NoFundDue();
+        businessBalance[businessAddress] = 0;
         _sendToken(businessAddress, _amount);
         emit FundReleased(businessAddress, _amount, block.timestamp);
     }
@@ -323,16 +356,17 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         _releaseFundToBusiness(_milestoneNumber);
     }
 
-    /// @dev Proves that a caller owns a particular NFT token
+    /// @dev Proves that a caller owns a particular NFT token by emitting IsTheTrueOwner event
+    /// It emits NotTheTrueOwner event if the caller is not the owner
     /// @param _tier funding or perks category
     /// @param _tokenId id of the nft token
-    /// @return boolean
-    function isOwnerOf(uint256 _tier, uint256 _tokenId) external view returns (bool) {
+    function isOwnerOf(uint256 _tier, uint256 _tokenId) external {
         address _owner = nftContractOf[_tier].ownerOf(_tokenId);
         if (msg.sender == _owner) {
-            return true;
+            emit IsTheTrueOwner(_owner, _tier, _tokenId);
+        } else {
+            emit NotTheTrueOwner(msg.sender, _tier, _tokenId);
         }
-        return false;
     }
 
     /// @dev Decides the campaign state at any point in time
@@ -406,10 +440,10 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     function _deductFeeAndSend() internal {
         // check whether fee has been deducted and sent before
         if (isFeeTaken == false) {
-            crowdditFee = fundRaised.mul(crowdditFeeFraction).div(100000);
-            fundRaisedMinusFee = fundRaised.sub(crowdditFee);
+            moatFee = fundRaised.mul(moatFeeNumerator).div(100000);
+            fundRaisedMinusFee = fundRaised.sub(moatFee);
             isFeeTaken = true;
-            _sendToken(treasuryAddress, crowdditFee);
+            _sendToken(treasuryAddress, moatFee);
         }
     }
 

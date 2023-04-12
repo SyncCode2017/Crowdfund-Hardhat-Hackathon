@@ -206,6 +206,31 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tier",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "IsTheTrueOwner",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "address",
         name: "funder",
@@ -219,6 +244,31 @@ const _abi = [
       },
     ],
     name: "NFTRewardClaimed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tier",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "NotTheTrueOwner",
     type: "event",
   },
   {
@@ -405,14 +455,8 @@ const _abi = [
       },
     ],
     name: "isOwnerOf",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -457,19 +501,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_feeFraction",
-        type: "uint256",
-      },
-    ],
-    name: "setCrowdditFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint256",
@@ -488,6 +519,19 @@ const _abi = [
       },
     ],
     name: "setFundingTiersAndCosts",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_feeFraction",
+        type: "uint256",
+      },
+    ],
+    name: "setMOATFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

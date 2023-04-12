@@ -9,6 +9,7 @@
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
     "@openzeppelin/contracts": "^4.8.1",
+    "@pinata/sdk": "^2.1.0",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.2",
     "@types/chai": "^4.2.0",
@@ -21,10 +22,15 @@
     "eslint": "^8.35.0",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.4.7",
+    "fs-extra": "^11.1.1",
     "hardhat": "^2.13.0",
     "hardhat-contract-sizer": "^2.8.0",
     "hardhat-deploy": "^0.11.25",
     "hardhat-gas-reporter": "^1.0.9",
+    "mime": "^3.0.0",
+    "nft.storage": "^7.0.3",
+    "node-fetch": "2",
+    "path": "^0.12.7",
     "prettier": "^2.8.4",
     "prettier-plugin-solidity": "^1.1.3",
     "solhint": "^3.4.1",
@@ -32,5 +38,12 @@
     "ts-node": ">=8.0.0",
     "typechain": "^8.1.0",
     "typescript": ">=4.5.0"
+  },
+  "scripts": {
+    "slither": "slither . --solc-remaps '@openzeppelin=node_modules/@openzeppelin @chainlink=node_modules/@chainlink' --exclude naming-convention,external-function,low-level-calls",
+    "toolbox": "docker run -it --rm -v $PWD:/src trailofbits/eth-security-toolbox",
+    "lint": "solhint 'contracts/*.sol'",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
+    "format": "prettier --write ."
   }
 }

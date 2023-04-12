@@ -8,7 +8,13 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["./scripts", "./deploy", "./test", "Lock.ts"],
+  "include": [
+    "./scripts",
+    "./deploy",
+    "./test",
+    "Lock.ts",
+    "utils/set-nft-contracts.ts"
+, "proveddit/provedditEvent.ts"  ],
   "exclude": [],
   "files": [
     "./hardhat.config.ts",

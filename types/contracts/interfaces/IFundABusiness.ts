@@ -75,8 +75,8 @@ export interface IFundABusinessInterface extends utils.Interface {
     "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
     "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
-    "setCrowdditFee(uint256)": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
+    "setMOATFee(uint256)": FunctionFragment;
     "setMilestones((uint256,uint256)[])": FunctionFragment;
     "setNftPerkContracts((uint256,address)[])": FunctionFragment;
     "setTargetAmounts(uint256[])": FunctionFragment;
@@ -100,8 +100,8 @@ export interface IFundABusinessInterface extends utils.Interface {
       | "setAllowedToken"
       | "setBusinessAddress"
       | "setCampaignAndDecisionPeriod"
-      | "setCrowdditFee"
       | "setFundingTiersAndCosts"
+      | "setMOATFee"
       | "setMilestones"
       | "setNftPerkContracts"
       | "setTargetAmounts"
@@ -175,12 +175,12 @@ export interface IFundABusinessInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "setCrowdditFee",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setFundingTiersAndCosts",
     values: [IFundABusiness.FundingTierCostStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMOATFee",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMilestones",
@@ -251,13 +251,10 @@ export interface IFundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setCrowdditFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setFundingTiersAndCosts",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setMOATFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMilestones",
     data: BytesLike
@@ -284,14 +281,18 @@ export interface IFundABusinessInterface extends utils.Interface {
     "ContributionRefunded(address,uint256)": EventFragment;
     "FiatContributionReceived(address,uint256)": EventFragment;
     "FundReleased(address,uint256,uint256)": EventFragment;
+    "IsTheTrueOwner(address,uint256,uint256)": EventFragment;
     "NFTRewardClaimed(address,uint256)": EventFragment;
+    "NotTheTrueOwner(address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FiatContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundReleased"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IsTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTRewardClaimed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NotTheTrueOwner"): EventFragment;
 }
 
 export interface ContributionReceivedEventObject {
@@ -342,6 +343,18 @@ export type FundReleasedEvent = TypedEvent<
 
 export type FundReleasedEventFilter = TypedEventFilter<FundReleasedEvent>;
 
+export interface IsTheTrueOwnerEventObject {
+  owner: string;
+  tier: BigNumber;
+  tokenId: BigNumber;
+}
+export type IsTheTrueOwnerEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  IsTheTrueOwnerEventObject
+>;
+
+export type IsTheTrueOwnerEventFilter = TypedEventFilter<IsTheTrueOwnerEvent>;
+
 export interface NFTRewardClaimedEventObject {
   funder: string;
   tier: BigNumber;
@@ -353,6 +366,18 @@ export type NFTRewardClaimedEvent = TypedEvent<
 
 export type NFTRewardClaimedEventFilter =
   TypedEventFilter<NFTRewardClaimedEvent>;
+
+export interface NotTheTrueOwnerEventObject {
+  caller: string;
+  tier: BigNumber;
+  tokenId: BigNumber;
+}
+export type NotTheTrueOwnerEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  NotTheTrueOwnerEventObject
+>;
+
+export type NotTheTrueOwnerEventFilter = TypedEventFilter<NotTheTrueOwnerEvent>;
 
 export interface IFundABusiness extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -439,8 +464,8 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setAllowedToken(
       _allowedErc20Token: PromiseOrValue<string>,
@@ -457,13 +482,13 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -550,8 +575,8 @@ export interface IFundABusiness extends BaseContract {
   isOwnerOf(
     _tier: PromiseOrValue<BigNumberish>,
     _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setAllowedToken(
     _allowedErc20Token: PromiseOrValue<string>,
@@ -568,13 +593,13 @@ export interface IFundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setCrowdditFee(
-    _feeFraction: PromiseOrValue<BigNumberish>,
+  setFundingTiersAndCosts(
+    _fundingTiers: IFundABusiness.FundingTierCostStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFundingTiersAndCosts(
-    _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+  setMOATFee(
+    _feeFraction: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -662,7 +687,7 @@ export interface IFundABusiness extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     setAllowedToken(
       _allowedErc20Token: PromiseOrValue<string>,
@@ -679,13 +704,13 @@ export interface IFundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -751,11 +776,33 @@ export interface IFundABusiness extends BaseContract {
       time?: null
     ): FundReleasedEventFilter;
 
+    "IsTheTrueOwner(address,uint256,uint256)"(
+      owner?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): IsTheTrueOwnerEventFilter;
+    IsTheTrueOwner(
+      owner?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): IsTheTrueOwnerEventFilter;
+
     "NFTRewardClaimed(address,uint256)"(
       funder?: null,
       tier?: null
     ): NFTRewardClaimedEventFilter;
     NFTRewardClaimed(funder?: null, tier?: null): NFTRewardClaimedEventFilter;
+
+    "NotTheTrueOwner(address,uint256,uint256)"(
+      caller?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): NotTheTrueOwnerEventFilter;
+    NotTheTrueOwner(
+      caller?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): NotTheTrueOwnerEventFilter;
   };
 
   estimateGas: {
@@ -817,7 +864,7 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setAllowedToken(
@@ -835,13 +882,13 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -931,7 +978,7 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAllowedToken(
@@ -949,13 +996,13 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

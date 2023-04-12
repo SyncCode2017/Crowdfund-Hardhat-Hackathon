@@ -4,25 +4,34 @@ import { BigNumber, ContractTransaction } from "ethers";
 import { deployments, ethers, getNamedAccounts } from "hardhat";
 import {
   ONE,
-  nftTiersAddresses,
+  nftMockAddresses,
   TIERS,
   TIER1_PRICE,
   TIER2_PRICE,
   TIER3_PRICE,
-  CROWDDIT_FEE_FRACTION,
+  MOAT_FEE_NUMERATOR,
   AMOUNTS_TO_BE_RAISED,
   ADDRESS_ZERO,
   FUNDERS_TIERS_AND_COST,
   MILESTONE_SCHEDULE,
   CAMPAIGN_PERIOD,
+  FAILURE,
+  TARGETMET,
+  sumOfTiersPrices,
 } from "../utils/constants";
 import {
   MockERC20 as MockERC20Type,
   BasicNft as BasicNftType,
   FundABusiness as FundABusinessType,
+  contracts,
 } from "../types";
-import setNftContracts from "../deploy/02-set-tier-contracts";
-import { setupUser } from "../utils/helper-functions";
+import setNftContracts from "../utils/set-nft-contracts";
+import {
+  TestAccount,
+  crowdFundABiz,
+  getAccountBalances,
+  setupUser,
+} from "../utils/helper-functions";
 import { moveTime } from "../utils/move-time";
 
 const setup = deployments.createFixture(async () => {
@@ -42,13 +51,13 @@ const setup = deployments.createFixture(async () => {
     fundABiz: <FundABusinessType>await ethers.getContract("FundABusiness"),
     mockErc20: <MockERC20Type>await ethers.getContract("MockERC20"),
     nftTier1Contract: <BasicNftType>(
-      await ethers.getContractAt("BasicNft", nftTiersAddresses[0])
+      await ethers.getContractAt("BasicNft", nftMockAddresses[0])
     ),
     nftTier2Contract: <BasicNftType>(
-      await ethers.getContractAt("BasicNft", nftTiersAddresses[1])
+      await ethers.getContractAt("BasicNft", nftMockAddresses[1])
     ),
     nftTier3Contract: <BasicNftType>(
-      await ethers.getContractAt("BasicNft", nftTiersAddresses[2])
+      await ethers.getContractAt("BasicNft", nftMockAddresses[2])
     ),
   };
   return {
@@ -63,49 +72,6 @@ const setup = deployments.createFixture(async () => {
     erin: await setupUser(erin, contracts),
   };
 });
-
-type TestAccount = {
-  address: string;
-  signer: SignerWithAddress;
-} & {
-  fundABiz: FundABusinessType;
-  mockErc20: MockERC20Type;
-  nftTier1Contract: BasicNftType;
-  nftTier2Contract: BasicNftType;
-  nftTier3Contract: BasicNftType;
-};
-async function getAccountBalances(
-  accounts: string[],
-  token: MockERC20Type
-): Promise<number[]> {
-  let accountsBalances: number[] = [];
-  for (let i = 0; i < accounts.length; i++) {
-    const balanceWei = (await token.balanceOf(accounts[i])).toString();
-    const balanceEth = ethers.utils.formatEther(balanceWei);
-    accountsBalances.push(Number(balanceEth));
-  }
-  return accountsBalances;
-}
-async function crowdFundABiz(funders: TestAccount[], quantities: number[]) {
-  for (let i = 0; i < funders.length; i++) {
-    const tx1: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[0],
-      quantities[i]
-    );
-    await tx1.wait();
-    const tx2: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[1],
-      quantities[i]
-    );
-    await tx2.wait();
-    const tx3: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[2],
-      quantities[i]
-    );
-    await tx3.wait();
-  }
-  console.log("Business crowd-funded!");
-}
 
 function checkArrayElements(values: unknown[], matchWith: unknown[]) {
   for (let i = 0; i < values.length; i++) {
@@ -153,11 +119,11 @@ describe("FundABusiness Unit Tests", function () {
     funders = [alice, bob, charlie, dave, erin];
     quantities = [10, 5, 5, 10, 7];
     amounts = [
-      10 * 100 + 10 * 200 + 10 * 300,
-      5 * 100 + 5 * 200 + 5 * 300,
-      5 * 100 + 5 * 200 + 5 * 300,
-      10 * 100 + 10 * 200 + 10 * 300,
-      7 * 100 + 7 * 200 + 7 * 300,
+      quantities[0] * sumOfTiersPrices,
+      quantities[1] * sumOfTiersPrices,
+      quantities[2] * sumOfTiersPrices,
+      quantities[3] * sumOfTiersPrices,
+      quantities[4] * sumOfTiersPrices,
     ];
     const deployerTokAmount: BigNumber = ONE.mul(100000);
     fundersAddresses = funders.map((x) => x.address);
@@ -198,9 +164,9 @@ describe("FundABusiness Unit Tests", function () {
       const businessAddress: string = await fundABiz.businessAddress();
       assert.equal(businessAddress, business_account.address);
     });
-    it("initiallizes crowdditFeeFraction correctly", async () => {
-      const feeFraction = Number(await fundABiz.crowdditFeeFraction());
-      assert.equal(feeFraction, CROWDDIT_FEE_FRACTION);
+    it("initiallizes moatFeeNumerator correctly", async () => {
+      const feeNum = Number(await fundABiz.moatFeeNumerator());
+      assert.equal(feeNum, MOAT_FEE_NUMERATOR);
     });
     it("initiallizes minTargetAmount correctly", async () => {
       const minTargetAmount = await fundABiz.minTargetAmount();
@@ -291,9 +257,9 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("allows claiming refund when campaign has failed", async () => {
       await moveTime(1000);
-      // CROWDDIT decides to close the campaign due to FAILURE
+      // MOAT decides to close the campaign due to FAILURE
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        1
+        FAILURE
       );
       await tx.wait();
       const initialBals: number[] = await getAccountBalances(
@@ -323,9 +289,9 @@ describe("FundABusiness Unit Tests", function () {
       }
     });
     it("rejects claiming refund when campaign succeeds", async () => {
-      // CROWDDIT decides to close the campaign due to TARGETMET
+      // MOAT decides to close the campaign due to TARGETMET
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        0
+        TARGETMET
       );
       await tx.wait();
       for (let i = 0; i < funders.length; i++) {
@@ -342,9 +308,9 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("rejects claiming refund when caller is not a funder", async () => {
       await moveTime(1000);
-      // CROWDDIT decides to close the campaign due to FAILURE
+      // MOAT decides to close the campaign due to FAILURE
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        1
+        FAILURE
       );
       await tx.wait();
       await expect(deployer.fundABiz.claimRefund(TIERS[2])).to.be.rejectedWith(
@@ -352,7 +318,7 @@ describe("FundABusiness Unit Tests", function () {
       );
     });
     it("rejects claiming refund when contract is paused", async () => {
-      // CROWDDIT decides to close the campaign due to TARGETMET
+      // MOAT decides to close the campaign due to TARGETMET
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
         0
       );
@@ -374,9 +340,9 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("emits ContributionRefunded", async () => {
       await moveTime(1000);
-      // CROWDDIT decides to close the campaign due to FAILURE
+      // MOAT decides to close the campaign due to FAILURE
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        1
+        FAILURE
       );
       await tx.wait();
       await expect(bob.fundABiz.claimRefund(TIERS[2]))
@@ -526,7 +492,7 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("allows funders to claim nft perks", async () => {
       await moveTime(31968000);
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
 
       for (let i = 0; i < funders.length; i++) {
         const tx1: ContractTransaction = await funders[i].fundABiz.claimNft(
@@ -547,23 +513,20 @@ describe("FundABusiness Unit Tests", function () {
           Number(await nftTier2Contract.getTokenCounter()) - 1;
         const lastTokenIdTier3 =
           Number(await nftTier3Contract.getTokenCounter()) - 1;
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1),
-          true
-        );
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2),
-          true
-        );
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3),
-          true
-        );
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
       }
     });
     it("rejects non-funders from claiming NFT", async () => {
       await moveTime(31968000);
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
 
       await expect(deployer.fundABiz.claimNft(TIERS[1])).to.be.rejectedWith(
         "NotAFunder()"
@@ -571,7 +534,7 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("rejects NFT claiming when contract is paused", async () => {
       await moveTime(31968000);
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
       const tx: ContractTransaction = await deployer.fundABiz.pause();
       await tx.wait();
       await expect(dave.fundABiz.claimNft(TIERS[1])).to.be.rejectedWith(
@@ -585,9 +548,9 @@ describe("FundABusiness Unit Tests", function () {
       );
     });
     it("rejects NFT claiming when campaign is unsuccesful", async () => {
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        1
+        FAILURE
       );
       await tx.wait();
       await expect(dave.fundABiz.claimNft(TIERS[1])).to.be.rejectedWith(
@@ -596,7 +559,7 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("rejects NFT claiming when NFT has been claimed", async () => {
       await moveTime(31968000);
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
       const tx: ContractTransaction = await dave.fundABiz.claimNft(TIERS[1]);
       await tx.wait();
       await expect(dave.fundABiz.claimNft(TIERS[1])).to.be.rejectedWith(
@@ -636,6 +599,89 @@ describe("FundABusiness Unit Tests", function () {
       );
       assert.equal(finalBals[0] - initialBals[0], amountReleased);
     });
+    it("allows manager to change businessAddress several times ", async () => {
+      const milestones = [0, 1, 2, 3];
+      const businessAccounts = [business_account, alice, bob, dave];
+      // movetime to when campaign has closed
+      await moveTime(31968000);
+      for (let i = 0; i < businessAccounts.length; i++) {
+        // Change the business address
+        const tx2: ContractTransaction =
+          await deployer.fundABiz.setBusinessAddress(
+            businessAccounts[i].address
+          );
+        await tx2.wait();
+
+        // release the second installment
+        const tx3: ContractTransaction =
+          await deployer.fundABiz.approveMilestoneAndReleaseFund(milestones[i]);
+        await tx3.wait();
+        expect(
+          Number(await fundABiz.businessBalance(businessAccounts[i].address))
+        ).to.be.greaterThan(0);
+
+        // Business address withdraws the second installment
+        if (i > 0) {
+          expect(
+            businessAccounts[i - 1].fundABiz.withdrawFundRaised()
+          ).to.be.rejectedWith("NotTheOwner()");
+        }
+        const tx4: ContractTransaction = await businessAccounts[
+          i
+        ].fundABiz.withdrawFundRaised();
+        await tx4.wait();
+        expect(
+          Number(await fundABiz.businessBalance(businessAccounts[i].address))
+        ).to.equal(0);
+      }
+
+      const finalContractBal: number[] = await getAccountBalances(
+        [fundABiz.address],
+        mockErc20
+      );
+      assert.equal(finalContractBal[0], 0);
+    });
+    it("correctly calculates the amount to release after every milestone", async () => {
+      const milestones = [0, 1, 2, 3];
+      const milestoneFractions = [0.2, 0.3, 0.4, 0.1];
+      // movetime to when campaign has closed
+      await moveTime(31968000);
+
+      for (let index in milestones) {
+        // Approve milestone and release fund
+        const tx: ContractTransaction =
+          await deployer.fundABiz.approveMilestoneAndReleaseFund(
+            milestones[index]
+          );
+        await tx.wait();
+
+        const netFundRaisedWei = await fundABiz.fundRaisedMinusFee();
+        const netFundRaisedEth = Number(
+          ethers.utils.formatEther(netFundRaisedWei)
+        );
+        const amountReleasedInEth = Math.floor(
+          netFundRaisedEth * milestoneFractions[index]
+        );
+        const tx1: ContractTransaction =
+          await business_account.fundABiz.withdrawFundRaised();
+        await tx1.wait();
+
+        await expect(tx1).to.changeTokenBalances(
+          mockErc20,
+          [business_account.address, fundABiz.address],
+          [
+            ethers.utils.parseEther(amountReleasedInEth.toString()),
+            ethers.utils.parseEther((-1 * amountReleasedInEth).toString()),
+          ]
+        );
+      }
+
+      const finalContractBal: number[] = await getAccountBalances(
+        [fundABiz.address],
+        mockErc20
+      );
+      assert.equal(finalContractBal[0], 0);
+    });
     it("reject withdrawal when no fund is due", async () => {
       // movetime to when campaign has closed
       await moveTime(31968000);
@@ -654,9 +700,9 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("rejects withdrawal when campaign is unsuccesful", async () => {
       await moveTime(1000);
-      // CROWDDIT decides to close the campaign due to FAILURE
+      // MOAT decides to close the campaign due to FAILURE
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
-        1
+        FAILURE
       );
       await tx.wait();
       await expect(
@@ -694,12 +740,11 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("allows manager role to close funding round", async () => {
       await moveTime(1000);
-      const TARGETMET = 0;
       const initialBals: number[] = await getAccountBalances(
         [treasury_account.address],
         mockErc20
       );
-      // CROWDDIT decides to close the campaign due to TARGETMET
+      // MOAT decides to close the campaign due to TARGETMET
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
         TARGETMET
       );
@@ -718,7 +763,6 @@ describe("FundABusiness Unit Tests", function () {
       const tx: ContractTransaction = await deployer.fundABiz.pause();
       await tx.wait();
       await moveTime(1000);
-      const TARGETMET = 0;
       const tx1: ContractTransaction =
         await deployer.fundABiz.closeFundingRound(TARGETMET);
       await tx1.wait();
@@ -731,13 +775,15 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("allows only manager role to close funding round", async () => {
       await moveTime(1000);
-      await expect(bob.fundABiz.closeFundingRound(1)).to.be.rejectedWith(
+      await expect(bob.fundABiz.closeFundingRound(FAILURE)).to.be.rejectedWith(
         "AccessControl"
       );
     });
     it("rejects funding round closure for invalid reason", async () => {
       await moveTime(1000);
-      await expect(bob.fundABiz.closeFundingRound(2)).to.be.rejected;
+      const invalidReason = 2;
+      await expect(bob.fundABiz.closeFundingRound(invalidReason)).to.be
+        .rejected;
     });
   });
   describe("isOwnerOf function", function () {
@@ -746,9 +792,9 @@ describe("FundABusiness Unit Tests", function () {
       await moveTime(31968000);
       await crowdFundABiz(funders, quantities);
     });
-    it("correctly confirms the owner of an NFT perk", async () => {
+    it("emits IsTheTrueOwner event", async () => {
       await moveTime(31968000);
-      await setNftContracts();
+      await setNftContracts(nftMockAddresses);
 
       for (let i = 0; i < funders.length; i++) {
         const tx1: ContractTransaction = await funders[i].fundABiz.claimNft(
@@ -769,30 +815,53 @@ describe("FundABusiness Unit Tests", function () {
           Number(await nftTier2Contract.getTokenCounter()) - 1;
         const lastTokenIdTier3 =
           Number(await nftTier3Contract.getTokenCounter()) - 1;
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1),
-          true
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
+      }
+    });
+    it("emits NotTheTrueOwner event if the caller is not the owner", async () => {
+      await moveTime(31968000);
+      await setNftContracts(nftMockAddresses);
+
+      for (let i = 0; i < funders.length; i++) {
+        const tx1: ContractTransaction = await funders[i].fundABiz.claimNft(
+          TIERS[0]
         );
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2),
-          true
+        await tx1.wait();
+        const tx2: ContractTransaction = await funders[i].fundABiz.claimNft(
+          TIERS[1]
         );
-        assert.equal(
-          await funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3),
-          true
+        await tx2.wait();
+        const tx3: ContractTransaction = await funders[i].fundABiz.claimNft(
+          TIERS[2]
         );
-        assert.equal(
-          await deployer.fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1),
-          false
-        );
-        assert.equal(
-          await business_account.fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2),
-          false
-        );
-        assert.equal(
-          await treasury_account.fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3),
-          false
-        );
+        await tx3.wait();
+        const lastTokenIdTier1 =
+          Number(await nftTier1Contract.getTokenCounter()) - 1;
+        const lastTokenIdTier2 =
+          Number(await nftTier2Contract.getTokenCounter()) - 1;
+        const lastTokenIdTier3 =
+          Number(await nftTier3Contract.getTokenCounter()) - 1;
+        await expect(deployer.fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
+          .to.emit(fundABiz, "NotTheTrueOwner")
+          .withArgs(deployer.address, TIERS[0], lastTokenIdTier1);
+        await expect(
+          business_account.fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2)
+        )
+          .to.emit(fundABiz, "NotTheTrueOwner")
+          .withArgs(business_account.address, TIERS[1], lastTokenIdTier2);
+        await expect(
+          treasury_account.fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3)
+        )
+          .to.emit(fundABiz, "NotTheTrueOwner")
+          .withArgs(treasury_account.address, TIERS[2], lastTokenIdTier3);
       }
     });
   });
@@ -918,7 +987,6 @@ describe("FundABusiness Unit Tests", function () {
       ).to.be.rejectedWith("AlreadyApproved()");
     });
     it("does not allow approval if campaign fails", async () => {
-      const FAILURE = 1;
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
         FAILURE
       );
@@ -944,9 +1012,9 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("allows only manager to setNftPerkContracts ", async () => {
       const TIERS_AND_NFT_CONTRACTS: [number, string][] = [
-        [TIERS[0], nftTiersAddresses[0]],
-        [TIERS[1], nftTiersAddresses[1]],
-        [TIERS[2], nftTiersAddresses[2]],
+        [TIERS[0], nftMockAddresses[0]],
+        [TIERS[1], nftMockAddresses[1]],
+        [TIERS[2], nftMockAddresses[2]],
       ];
       await expect(
         bob.fundABiz.setNftPerkContracts(TIERS_AND_NFT_CONTRACTS)
@@ -982,9 +1050,9 @@ describe("FundABusiness Unit Tests", function () {
         alice.fundABiz.setMilestones(MILESTONE_SCHEDULE)
       ).to.be.rejectedWith("AccessControl");
     });
-    it("allows only manager to setCrowdditFee", async () => {
+    it("allows only manager to setMOATFee", async () => {
       await expect(
-        alice.fundABiz.setCrowdditFee(CROWDDIT_FEE_FRACTION)
+        alice.fundABiz.setMOATFee(MOAT_FEE_NUMERATOR)
       ).to.be.rejectedWith("AccessControl");
     });
     it("does not allow setting FundingTiersAndCosts after campaign has started", async () => {
@@ -994,14 +1062,14 @@ describe("FundABusiness Unit Tests", function () {
         deployer.fundABiz.setFundingTiersAndCosts(FUNDERS_TIERS_AND_COST)
       ).to.be.rejectedWith("TooLateToChange()");
     });
-    it("does not allow changing CrowdditFee after campaign has started", async () => {
+    it("does not allow changing MOATFee after campaign has started", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
       await expect(
-        deployer.fundABiz.setCrowdditFee(CROWDDIT_FEE_FRACTION)
+        deployer.fundABiz.setMOATFee(MOAT_FEE_NUMERATOR)
       ).to.be.rejectedWith("TooLateToChange()");
     });
-    it("does not allow changing the targetAmonts after decision time has passed", async () => {
+    it("does not allow changing the targetAmounts after decision time has passed", async () => {
       // movetime to when decision time has passed
       await moveTime(63936000);
       await expect(

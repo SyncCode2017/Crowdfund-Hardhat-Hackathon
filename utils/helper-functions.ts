@@ -3,13 +3,14 @@ import { BigNumber, Contract, ContractTransaction, Transaction } from "ethers";
 import { getContractAddress, Interface, Result } from "ethers/lib/utils";
 import { run, ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types";
-// import {
-//   Resource as ResourceType,
-//   MockERC20 as MockERC20Type,
-//   Orderbook as OrderbookType,
-// } from "../types";
+import {
+  MockERC20 as MockERC20Type,
+  BasicNft as BasicNftType,
+  FundABusiness as FundABusinessType,
+} from "../types";
 
 import {
+  TIERS,
   VERIFICATION_BLOCK_CONFIRMATIONS,
   VERIFICATION_BLOCK_CONFIRMATIONS_DEV,
 } from "../utils/constants";
@@ -218,55 +219,50 @@ export const getBlockConfirmations = (
     : VERIFICATION_BLOCK_CONFIRMATIONS;
 };
 
-type TestAccount = {
+export async function getAccountBalances(
+  accounts: string[],
+  token: MockERC20Type
+): Promise<number[]> {
+  let accountsBalances: number[] = [];
+  for (let i = 0; i < accounts.length; i++) {
+    const balanceWei = (await token.balanceOf(accounts[i])).toString();
+    const balanceEth = ethers.utils.formatEther(balanceWei);
+    accountsBalances.push(Number(balanceEth));
+  }
+  return accountsBalances;
+}
+
+export type TestAccount = {
   address: string;
   signer: SignerWithAddress;
 } & {
-  orderbook: OrderbookType;
-  mockERC20: MockERC20Type;
-  resource: ResourceType;
+  fundABiz: FundABusinessType;
+  mockErc20: MockERC20Type;
+  nftTier1Contract: BasicNftType;
+  nftTier2Contract: BasicNftType;
+  nftTier3Contract: BasicNftType;
 };
 
-// Transfers resources and mockERC20 tokens to orderbook users and gives approval to orderbook
-export const transferTokensToOrderbookUsers = async (
-  deployer: TestAccount,
-  users: TestAccount[]
-): Promise<void> => {
-  const tx: ContractTransaction = await deployer.resource.mint(
-    deployer.address,
-    RESOURCE_ID,
-    RESOURCE_AMOUNT,
-    []
-  );
-  await tx.wait();
-  const individualNFTAmount = Math.floor(RESOURCE_AMOUNT / users.length);
-  const userErc20Amount: BigNumber = (
-    await deployer.mockERC20.totalSupply()
-  ).div(users.length);
-
-  for (const user of users) {
-    const tx1: ContractTransaction = await user.mockERC20.approve(
-      user.orderbook.address,
-      ethers.constants.MaxUint256
+export async function crowdFundABiz(
+  funders: TestAccount[],
+  quantities: number[]
+) {
+  for (let i = 0; i < funders.length; i++) {
+    const tx1: ContractTransaction = await funders[i].fundABiz.contribute(
+      TIERS[0],
+      quantities[i]
     );
     await tx1.wait();
-    const tx2: ContractTransaction = await user.resource.setApprovalForAll(
-      user.orderbook.address,
-      true
+    const tx2: ContractTransaction = await funders[i].fundABiz.contribute(
+      TIERS[1],
+      quantities[i]
     );
     await tx2.wait();
-    const tx3: ContractTransaction = await deployer.mockERC20.transfer(
-      user.address,
-      userErc20Amount
+    const tx3: ContractTransaction = await funders[i].fundABiz.contribute(
+      TIERS[2],
+      quantities[i]
     );
     await tx3.wait();
-    const tx4: ContractTransaction = await deployer.resource.safeTransferFrom(
-      deployer.address,
-      user.address,
-      RESOURCE_ID,
-      individualNFTAmount,
-      []
-    );
-    await tx4.wait();
   }
-};
+  console.log("Business crowd-funded!");
+}

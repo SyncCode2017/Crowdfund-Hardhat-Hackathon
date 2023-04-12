@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.16;
+pragma solidity 0.8.17;
 
 interface IFundABusiness {
     error ZeroAddress();
@@ -40,42 +40,51 @@ interface IFundABusiness {
     }
 
     struct MilestoneStruct {
+        // id of the milestone
         uint256 milestoneNumber;
-         // fraction of fund raised to be released * 100000
+        // fraction of fund raised to be released * 100000
         uint256 fractionToBeReleased;
     }
-
+    // decision made whether the campaign was sucessful
     enum CampaignState {
         SUCCESS,
         FAILURE,
         UNDECIDED
     }
-
+    // reason for closing the campaign abruptly
     enum EndCampaign {
         TARGETMET,
         FAILURE
     }
 
-    // Emitted when a valid listed item is sold at the requested price
+    // emitted when a contribution is received from an address
     event ContributionReceived(address funder, uint256 tier);
-
+    // emmitted when manager role contributess on behalf of funders who contributed through fiat
     event FiatContributionReceived(address funder, uint256 amount);
-
+    // emitted when a funder claims his refund after a campaign has been declared a failure
     event ContributionRefunded(address funder, uint256 tier);
-
+    // emitted when fund is released to the business for withdrawal
     event FundReleased(address business, uint256 amount, uint256 time);
-
+    // emitted when a funder claims his NFT perks after the campaign has been declared successful
     event NFTRewardClaimed(address funder, uint256 tier);
+    // emmited if the caller is the owner of the given NFTtier
+    event IsTheTrueOwner(address indexed owner, uint256 tier, uint256 tokenId);
+    // emmited if the caller is not the owner of a given NFTtier
+    event NotTheTrueOwner(address indexed caller, uint256 tier, uint256 tokenId);
 
+    ///@dev sets the allowed ERC20 tokens for the campaign
     function setAllowedToken(address _allowedErc20Token) external;
 
+    ///@dev sets the NFT perks contracts
     function setNftPerkContracts(NftTierContract[] memory _nftTierContracts) external;
 
+    ///@dev sets the MOAT treasury address
     function setTreasuryAddress(address _treasuryAddress) external;
 
     /// @dev Set the wallet address of the business raising fund through this contract
     function setBusinessAddress(address _businessAddress) external;
 
+    ///@dev sets the available tiers and their corresponding prices
     function setFundingTiersAndCosts(FundingTierCost[] memory _fundingTiers) external;
 
     /// @param _amountsToBeRaised array of length 2.
@@ -84,10 +93,11 @@ interface IFundABusiness {
     /// @param _campaignTimesAndDecision array of length 3.
     function setCampaignAndDecisionPeriod(uint256[] memory _campaignTimesAndDecision) external;
 
+    ///@dev sets the milestones
     function setMilestones(MilestoneStruct[] memory _milestonesData) external;
 
     /// @param _feeFraction e.g 5% => 5 * (10**5) / 100 = 5000
-    function setCrowdditFee(uint256 _feeFraction) external;
+    function setMOATFee(uint256 _feeFraction) external;
 
     //////////////////////////////////////////////////
     //////////////// Main Functions /////////////////
@@ -140,8 +150,8 @@ interface IFundABusiness {
     /// @param _quantities array of number of tiers purchased by each funder
     /// All the arrays must be the same length
     function fiatContributeOnBehalfOf(address[] memory _funders, uint256[] memory _tiers, uint256[] memory _quantities, uint256 _totalAmount) external;
-    
-     /// @notice Manager role can close the funding round before the decision time passed
+
+    /// @notice Manager role can close the funding round before the decision time passed
     /// @dev reason for closing the campaign is required
     /// @param _reasonForEnding enum only accepts TARGETMET or FAILURE
     function closeFundingRound(EndCampaign _reasonForEnding) external;
@@ -151,11 +161,11 @@ interface IFundABusiness {
     /// @param _milestoneNumber the milestone to be approved
     function approveMilestoneAndReleaseFund(uint256 _milestoneNumber) external;
 
-    /// @dev Proves that a caller owns a particular NFT token
+    /// @dev Proves that a caller owns a particular NFT token by emitting IsTheTrueOwner event
+    /// It emits NotTheTrueOwner event if the caller is not the owner
     /// @param _tier funding or perks category
     /// @param _tokenId id of the nft token
-    /// @return boolean
-    function isOwnerOf(uint256 _tier, uint256 _tokenId) external view returns (bool);
+    function isOwnerOf(uint256 _tier, uint256 _tokenId) external;
 
     /// @dev returns the array of all funder addresses
     function getFundersAddresses() external view returns (address[] memory);

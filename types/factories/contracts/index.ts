@@ -4,3 +4,4 @@
 export * as interfaces from "./interfaces";
 export * as mocks from "./mocks";
 export { FundABusiness__factory } from "./FundABusiness__factory";
+export { NftPerks__factory } from "./NftPerks__factory";

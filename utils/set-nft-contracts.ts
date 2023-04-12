@@ -1,9 +1,11 @@
 import { ethers, getNamedAccounts } from "hardhat";
-import { nftTiersAddresses, TIERS } from "../utils/constants";
+import { TIERS } from "./constants";
 import { FundABusiness as FundABusinessType } from "../types";
 import { ContractTransaction } from "ethers";
 
-const setNftContracts = async (): Promise<void> => {
+const setNftContracts = async (
+  nftContractAddresses: string[]
+): Promise<void> => {
   const { deployer } = await getNamedAccounts();
   try {
     const fundABiz: FundABusinessType = await ethers.getContract(
@@ -11,7 +13,7 @@ const setNftContracts = async (): Promise<void> => {
     );
 
     console.log("Setting NFT contracts addresses...");
-    if (nftTiersAddresses.length == 0) {
+    if (nftContractAddresses.length == 0) {
       throw new Error("No NFT contract address");
       process.exit(1);
     }
@@ -21,11 +23,11 @@ const setNftContracts = async (): Promise<void> => {
         [TIER2, "NFT_TIER2_ADDRESS"],
         [TIER3, "NFT_TIER3_ADDRESS"],
     ] */
-    const TIERS_AND_NFT_CONTRACTS: [number, string][] = [
-      [TIERS[0], nftTiersAddresses[0]],
-      [TIERS[1], nftTiersAddresses[1]],
-      [TIERS[2], nftTiersAddresses[2]],
-    ];
+    let TIERS_AND_NFT_CONTRACTS: [number, string][] = [];
+    for (let i = 0; i < nftContractAddresses.length; i++) {
+      TIERS_AND_NFT_CONTRACTS.push([TIERS[i], nftContractAddresses[i]]);
+    }
+
     // Set NFT Contracts
     const tx: ContractTransaction = await fundABiz.setNftPerkContracts(
       TIERS_AND_NFT_CONTRACTS,
@@ -33,7 +35,7 @@ const setNftContracts = async (): Promise<void> => {
     );
     await tx.wait();
 
-    console.log("NFT Tiers contracts set!");
+    console.log("NFT contracts set!");
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -41,4 +43,3 @@ const setNftContracts = async (): Promise<void> => {
 };
 
 export default setNftContracts;
-setNftContracts.tags = ["setNFT"];

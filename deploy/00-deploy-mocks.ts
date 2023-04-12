@@ -1,60 +1,65 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
-// import { Address, DeployResult } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import {
-  ONE,
   ERC20_AMOUNT,
   developmentChains,
   TIERS_MAX_SUPPLIES,
   TIERS_NAMES,
-  nftTiersContracts,
-  nftTiersAddresses,
+  nftMockContracts,
+  nftMockAddresses,
+  CROWDDIT_WALLETS,
 } from "../utils/constants";
-import { getBlockConfirmations } from "../utils/helper-functions";
-import { MockERC20 as MockERC20Type, BasicNft as BasicNftType } from "../types";
+import { getBlockConfirmations, verify } from "../utils/helper-functions";
 
 const deployMockTokens: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
   const { getNamedAccounts, deployments, network } = hre;
   const { deploy, log } = deployments;
-  const {
-    deployer,
-    business_account,
-    treasury_account,
-    alice,
-    bob,
-    charlie,
-    dave,
-    erin,
-  } = await getNamedAccounts();
+  const { deployer, treasury_account, alice, bob, charlie, dave, erin } =
+    await getNamedAccounts();
   const chainId = network.config.chainId;
-  if (chainId == 31337) {
-    log("Local network detected! Deploying mocks...");
 
-    const waitBlockConfirmations: number = getBlockConfirmations(
-      developmentChains,
-      network
-    );
+  log("Deploying mocks...");
+  const waitBlockConfirmations: number = getBlockConfirmations(
+    developmentChains,
+    network
+  );
+  let argsErc20: [string[], BigNumber[]] = [[], []];
 
-    const accounts = await ethers.getSigners();
-    const argsErc20: [string[], BigNumber[]] = [
+  if (!developmentChains.includes(network.name)) {
+    argsErc20 = [
+      CROWDDIT_WALLETS,
+      [ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT],
+    ];
+  } else {
+    argsErc20 = [
       [alice, bob, charlie, dave, erin],
       [ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT],
     ];
+  }
+  const mockErc20: DeployResult = await deploy("MockERC20", {
+    from: deployer,
+    args: argsErc20,
+    log: true,
+    waitConfirmations: waitBlockConfirmations,
+  });
 
-    const mockErc20: DeployResult = await deploy("MockERC20", {
-      from: deployer,
-      args: argsErc20,
-      log: true,
-      waitConfirmations: waitBlockConfirmations,
-    });
+  log("Mock ERC-20 Deployed!");
+  log("---------------------------------------------------------");
 
-    log("Mock ERC-20 Deployed!");
-    log("---------------------------------------------------------");
+  // Verify the contracts
+  if (
+    !developmentChains.includes(network.name) &&
+    process.env.POLYGONSCAN_API_KEY
+  ) {
+    log("Verifying...");
+    await verify(mockErc20.address, argsErc20);
+  }
 
+  if (developmentChains.includes(network.name)) {
     for (let i = 0; i < TIERS_NAMES.length; i++) {
       if (TIERS_NAMES.length != TIERS_MAX_SUPPLIES.length) {
         throw new Error("invalid arrays lengths");
@@ -66,7 +71,7 @@ const deployMockTokens: DeployFunction = async function (
         TIERS_MAX_SUPPLIES[i],
       ];
 
-      nftTiersContracts.push(
+      await nftMockContracts.push(
         await deploy("BasicNft", {
           from: deployer,
           args: argsNFT,
@@ -74,7 +79,7 @@ const deployMockTokens: DeployFunction = async function (
           waitConfirmations: waitBlockConfirmations,
         })
       );
-      nftTiersAddresses.push(nftTiersContracts[i].address);
+      nftMockAddresses.push(nftMockContracts[i].address);
       log(`Mock NFT ${TIERS_NAMES[i]} Contracts Deployed!`);
       log("---------------------------------------------------------");
     }

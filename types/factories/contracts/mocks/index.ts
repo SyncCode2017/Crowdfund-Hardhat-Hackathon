@@ -2,6 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BasicNft__factory } from "./BasicNft__factory";
-export { MockERC1155__factory } from "./MockERC1155__factory";
 export { MockERC20__factory } from "./MockERC20__factory";
-export { MockNFTWrapper__factory } from "./MockNFTWrapper__factory";

@@ -4,5 +4,4 @@
 export { IBasicNft__factory } from "./IBasicNft__factory";
 export { IERC2981__factory } from "./IERC2981__factory";
 export { IFundABusiness__factory } from "./IFundABusiness__factory";
-export { IMockERC1155__factory } from "./IMockERC1155__factory";
-export { INftCommon__factory } from "./INftCommon__factory";
+export { INftPerks__factory } from "./INftPerks__factory";

@@ -2,6 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BasicNft } from "./BasicNft";
-export type { MockERC1155 } from "./MockERC1155";
 export type { MockERC20 } from "./MockERC20";
-export type { MockNFTWrapper } from "./MockNFTWrapper";

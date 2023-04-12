@@ -78,7 +78,6 @@ export interface FundABusinessInterface extends utils.Interface {
     "closeFundingRound(uint8)": FunctionFragment;
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
-    "crowdditFeeFraction()": FunctionFragment;
     "cumFundReleased()": FunctionFragment;
     "fiatContributeOnBehalfOf(address[],uint256[],uint256[],uint256)": FunctionFragment;
     "fractionOfMilestone(uint256)": FunctionFragment;
@@ -93,6 +92,7 @@ export interface FundABusinessInterface extends utils.Interface {
     "isMilestoneApproved(uint256)": FunctionFragment;
     "isOwnerOf(uint256,uint256)": FunctionFragment;
     "minTargetAmount()": FunctionFragment;
+    "moatFeeNumerator()": FunctionFragment;
     "nftContractOf(uint256)": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
@@ -101,8 +101,8 @@ export interface FundABusinessInterface extends utils.Interface {
     "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
     "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
-    "setCrowdditFee(uint256)": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
+    "setMOATFee(uint256)": FunctionFragment;
     "setMilestones((uint256,uint256)[])": FunctionFragment;
     "setNftPerkContracts((uint256,address)[])": FunctionFragment;
     "setTargetAmounts(uint256[])": FunctionFragment;
@@ -135,7 +135,6 @@ export interface FundABusinessInterface extends utils.Interface {
       | "closeFundingRound"
       | "contribute"
       | "contributeOnBehalfOf"
-      | "crowdditFeeFraction"
       | "cumFundReleased"
       | "fiatContributeOnBehalfOf"
       | "fractionOfMilestone"
@@ -150,6 +149,7 @@ export interface FundABusinessInterface extends utils.Interface {
       | "isMilestoneApproved"
       | "isOwnerOf"
       | "minTargetAmount"
+      | "moatFeeNumerator"
       | "nftContractOf"
       | "pause"
       | "paused"
@@ -158,8 +158,8 @@ export interface FundABusinessInterface extends utils.Interface {
       | "setAllowedToken"
       | "setBusinessAddress"
       | "setCampaignAndDecisionPeriod"
-      | "setCrowdditFee"
       | "setFundingTiersAndCosts"
+      | "setMOATFee"
       | "setMilestones"
       | "setNftPerkContracts"
       | "setTargetAmounts"
@@ -246,10 +246,6 @@ export interface FundABusinessInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "crowdditFeeFraction",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "cumFundReleased",
     values?: undefined
   ): string;
@@ -311,6 +307,10 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "moatFeeNumerator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "nftContractOf",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -337,12 +337,12 @@ export interface FundABusinessInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "setCrowdditFee",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setFundingTiersAndCosts",
     values: [IFundABusiness.FundingTierCostStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMOATFee",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setMilestones",
@@ -446,10 +446,6 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "crowdditFeeFraction",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "cumFundReleased",
     data: BytesLike
   ): Result;
@@ -491,6 +487,10 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "moatFeeNumerator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "nftContractOf",
     data: BytesLike
   ): Result;
@@ -514,13 +514,10 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setCrowdditFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setFundingTiersAndCosts",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setMOATFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setMilestones",
     data: BytesLike
@@ -562,7 +559,9 @@ export interface FundABusinessInterface extends utils.Interface {
     "ContributionRefunded(address,uint256)": EventFragment;
     "FiatContributionReceived(address,uint256)": EventFragment;
     "FundReleased(address,uint256,uint256)": EventFragment;
+    "IsTheTrueOwner(address,uint256,uint256)": EventFragment;
     "NFTRewardClaimed(address,uint256)": EventFragment;
+    "NotTheTrueOwner(address,uint256,uint256)": EventFragment;
     "Paused(address)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
@@ -574,7 +573,9 @@ export interface FundABusinessInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContributionRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FiatContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundReleased"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IsTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTRewardClaimed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NotTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -630,6 +631,18 @@ export type FundReleasedEvent = TypedEvent<
 
 export type FundReleasedEventFilter = TypedEventFilter<FundReleasedEvent>;
 
+export interface IsTheTrueOwnerEventObject {
+  owner: string;
+  tier: BigNumber;
+  tokenId: BigNumber;
+}
+export type IsTheTrueOwnerEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  IsTheTrueOwnerEventObject
+>;
+
+export type IsTheTrueOwnerEventFilter = TypedEventFilter<IsTheTrueOwnerEvent>;
+
 export interface NFTRewardClaimedEventObject {
   funder: string;
   tier: BigNumber;
@@ -641,6 +654,18 @@ export type NFTRewardClaimedEvent = TypedEvent<
 
 export type NFTRewardClaimedEventFilter =
   TypedEventFilter<NFTRewardClaimedEvent>;
+
+export interface NotTheTrueOwnerEventObject {
+  caller: string;
+  tier: BigNumber;
+  tokenId: BigNumber;
+}
+export type NotTheTrueOwnerEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  NotTheTrueOwnerEventObject
+>;
+
+export type NotTheTrueOwnerEventFilter = TypedEventFilter<NotTheTrueOwnerEvent>;
 
 export interface PausedEventObject {
   account: string;
@@ -786,8 +811,6 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    crowdditFeeFraction(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     cumFundReleased(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     fiatContributeOnBehalfOf(
@@ -845,10 +868,12 @@ export interface FundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    moatFeeNumerator(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
@@ -888,13 +913,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1013,8 +1038,6 @@ export interface FundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
-
   cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
   fiatContributeOnBehalfOf(
@@ -1072,10 +1095,12 @@ export interface FundABusiness extends BaseContract {
   isOwnerOf(
     _tier: PromiseOrValue<BigNumberish>,
     _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  moatFeeNumerator(overrides?: CallOverrides): Promise<BigNumber>;
 
   nftContractOf(
     arg0: PromiseOrValue<BigNumberish>,
@@ -1115,13 +1140,13 @@ export interface FundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setCrowdditFee(
-    _feeFraction: PromiseOrValue<BigNumberish>,
+  setFundingTiersAndCosts(
+    _fundingTiers: IFundABusiness.FundingTierCostStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setFundingTiersAndCosts(
-    _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+  setMOATFee(
+    _feeFraction: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1240,8 +1265,6 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
-
     cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
     fiatContributeOnBehalfOf(
@@ -1300,9 +1323,11 @@ export interface FundABusiness extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    moatFeeNumerator(overrides?: CallOverrides): Promise<BigNumber>;
 
     nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1340,13 +1365,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1434,11 +1459,33 @@ export interface FundABusiness extends BaseContract {
       time?: null
     ): FundReleasedEventFilter;
 
+    "IsTheTrueOwner(address,uint256,uint256)"(
+      owner?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): IsTheTrueOwnerEventFilter;
+    IsTheTrueOwner(
+      owner?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): IsTheTrueOwnerEventFilter;
+
     "NFTRewardClaimed(address,uint256)"(
       funder?: null,
       tier?: null
     ): NFTRewardClaimedEventFilter;
     NFTRewardClaimed(funder?: null, tier?: null): NFTRewardClaimedEventFilter;
+
+    "NotTheTrueOwner(address,uint256,uint256)"(
+      caller?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): NotTheTrueOwnerEventFilter;
+    NotTheTrueOwner(
+      caller?: PromiseOrValue<string> | null,
+      tier?: null,
+      tokenId?: null
+    ): NotTheTrueOwnerEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
@@ -1547,8 +1594,6 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    crowdditFeeFraction(overrides?: CallOverrides): Promise<BigNumber>;
-
     cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
     fiatContributeOnBehalfOf(
@@ -1606,10 +1651,12 @@ export interface FundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    moatFeeNumerator(overrides?: CallOverrides): Promise<BigNumber>;
 
     nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1649,13 +1696,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1779,10 +1826,6 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    crowdditFeeFraction(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     cumFundReleased(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fiatContributeOnBehalfOf(
@@ -1844,10 +1887,12 @@ export interface FundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    moatFeeNumerator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nftContractOf(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1887,13 +1932,13 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setCrowdditFee(
-      _feeFraction: PromiseOrValue<BigNumberish>,
+    setFundingTiersAndCosts(
+      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setFundingTiersAndCosts(
-      _fundingTiers: IFundABusiness.FundingTierCostStruct[],
+    setMOATFee(
+      _feeFraction: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

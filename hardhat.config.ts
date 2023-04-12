@@ -19,8 +19,8 @@ const PRIVATE_KEY_2 =
 const PRIVATE_KEY_3 =
   process.env.PRIVATE_KEY_Hardhat_1 ||
   "0000000000000000000000000000000000000000000000000000000000000000";
-const POLYGON_MUMBAI_ETHERSCAN_KEY =
-  process.env.POLYGON_MUMBAI_ETHERSCAN_API_KEY ||
+const POLYGON_MUMBAI_KEY =
+  process.env.POLYGONSCAN_API_KEY ||
   "0000000000000000000000000000000000000000000000000000000000000000";
 
 // import "./tasks"
@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.16",
+        version: "0.8.17",
         settings: {
           optimizer: {
             enabled: true,
@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       // polygon: POLYGONSCAN_API_KEY,
-      polygonMumbai: POLYGON_MUMBAI_ETHERSCAN_KEY,
+      polygonMumbai: POLYGON_MUMBAI_KEY,
       // goerli: ETHERSCAN_API_KEY,
     },
   },
@@ -108,19 +108,15 @@ const config: HardhatUserConfig = {
     },
     business_account: {
       default: 1,
-      80001: 1,
     },
     treasury_account: {
       default: 2,
-      80001: 2,
     },
     alice: {
       default: 3,
-      80001: 3,
     },
     bob: {
       default: 4,
-      80001: 4,
     },
     charlie: {
       default: 5,
