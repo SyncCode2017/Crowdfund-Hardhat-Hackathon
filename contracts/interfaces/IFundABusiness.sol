@@ -63,6 +63,10 @@ interface IFundABusiness {
     event FiatContributionReceived(address funder, uint256 amount);
     // emitted when a funder claims his refund after a campaign has been declared a failure
     event ContributionRefunded(address funder, uint256 tier);
+    // emitted when campaign is declared successful
+    event CampaignSuccessful(uint256 time);
+    // emitted when campaign is declared unsuccessful
+    event CampaignFailed(uint256 time);
     // emitted when fund is released to the business for withdrawal
     event FundReleased(address business, uint256 amount, uint256 time);
     // emitted when a funder claims his NFT perks after the campaign has been declared successful

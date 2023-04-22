@@ -234,7 +234,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     /// @dev Claim a refund on behalf of a funder
     /// @param _funder the funder address
     /// @param _tier funding category
-    function claimRefundFor(address _funder, uint256 _tier) public onlyFunders(_funder) nonReentrant whenNotPaused {
+    function claimRefundFor(address _funder, uint256 _tier) public nonReentrant whenNotPaused {
         verdict = _campaignVerdict();
         // check if campaign failed
         if (verdict == CampaignState.SUCCESS) revert NoRefund();
@@ -250,14 +250,14 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     /// @notice The funders can claim refund only when the campaign failed
     /// @dev Claim a refund for the connected wallet
     /// @param _tier funding category
-    function claimRefund(uint256 _tier) external {
+    function claimRefund(uint256 _tier) external onlyFunders(msg.sender) {
         claimRefundFor(msg.sender, _tier);
     }
 
     /// @notice The funders can claim NFT perks when the campaign is successful
     /// @dev NFT with tokenId = _tier is transfer to the connected wallet
     /// @param _tier funding category
-    function claimNft(uint256 _tier) external {
+    function claimNft(uint256 _tier) external onlyFunders(msg.sender) {
         claimNftFor(msg.sender, _tier);
     }
 
@@ -265,7 +265,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     /// @dev Claim NFT for another _funder. NFT with tokenId = _tier is transfer to the _funder
     /// @param _funder the funder address
     /// @param _tier funding category
-    function claimNftFor(address _funder, uint256 _tier) public onlyFunders(_funder) nftTokensAreSet nonReentrant whenNotPaused {
+    function claimNftFor(address _funder, uint256 _tier) public nftTokensAreSet nonReentrant whenNotPaused {
         verdict = _campaignVerdict();
         // check whether the campaign was successful
         if (verdict != CampaignState.SUCCESS) revert CampaignUnsuccessful();
@@ -338,6 +338,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
             _deductFeeAndSend();
         } else if (_reasonForEnding == EndCampaign.FAILURE) {
             verdict = CampaignState.FAILURE;
+            emit CampaignFailed(block.timestamp);
         } else {
             revert InvalidValues();
         }
@@ -377,6 +378,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
             _deductFeeAndSend();
             return CampaignState.SUCCESS;
         } else if (block.timestamp > campaignDecisionTime && fundRaised < minTargetAmount && verdict != CampaignState.SUCCESS) {
+            emit CampaignFailed(block.timestamp);
             return CampaignState.FAILURE;
         }
         return verdict;
@@ -444,6 +446,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
             fundRaisedMinusFee = fundRaised.sub(moatFee);
             isFeeTaken = true;
             _sendToken(treasuryAddress, moatFee);
+            emit CampaignSuccessful(block.timestamp);
         }
     }
 

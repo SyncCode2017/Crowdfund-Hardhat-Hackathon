@@ -277,6 +277,8 @@ export interface IFundABusinessInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "CampaignFailed(uint256)": EventFragment;
+    "CampaignSuccessful(uint256)": EventFragment;
     "ContributionReceived(address,uint256)": EventFragment;
     "ContributionRefunded(address,uint256)": EventFragment;
     "FiatContributionReceived(address,uint256)": EventFragment;
@@ -286,6 +288,8 @@ export interface IFundABusinessInterface extends utils.Interface {
     "NotTheTrueOwner(address,uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "CampaignFailed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CampaignSuccessful"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FiatContributionReceived"): EventFragment;
@@ -294,6 +298,27 @@ export interface IFundABusinessInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "NFTRewardClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NotTheTrueOwner"): EventFragment;
 }
+
+export interface CampaignFailedEventObject {
+  time: BigNumber;
+}
+export type CampaignFailedEvent = TypedEvent<
+  [BigNumber],
+  CampaignFailedEventObject
+>;
+
+export type CampaignFailedEventFilter = TypedEventFilter<CampaignFailedEvent>;
+
+export interface CampaignSuccessfulEventObject {
+  time: BigNumber;
+}
+export type CampaignSuccessfulEvent = TypedEvent<
+  [BigNumber],
+  CampaignSuccessfulEventObject
+>;
+
+export type CampaignSuccessfulEventFilter =
+  TypedEventFilter<CampaignSuccessfulEvent>;
 
 export interface ContributionReceivedEventObject {
   funder: string;
@@ -738,6 +763,12 @@ export interface IFundABusiness extends BaseContract {
   };
 
   filters: {
+    "CampaignFailed(uint256)"(time?: null): CampaignFailedEventFilter;
+    CampaignFailed(time?: null): CampaignFailedEventFilter;
+
+    "CampaignSuccessful(uint256)"(time?: null): CampaignSuccessfulEventFilter;
+    CampaignSuccessful(time?: null): CampaignSuccessfulEventFilter;
+
     "ContributionReceived(address,uint256)"(
       funder?: null,
       tier?: null

@@ -288,6 +288,45 @@ describe("FundABusiness Unit Tests", function () {
         assert.equal(finalBals[i] - initialBals[i], amounts[i]);
       }
     });
+    it("allows airdropping refund to funders when campaign has failed", async () => {
+      await moveTime(1000);
+      // MOAT decides to close the campaign due to FAILURE
+      const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
+        FAILURE
+      );
+      await tx.wait();
+      const initialBals: number[] = await getAccountBalances(
+        fundersAddresses,
+        mockErc20
+      );
+      for (let i = 0; i < funders.length; i++) {
+        const tx1: ContractTransaction =
+          await treasury_account.fundABiz.claimRefundFor(
+            funders[i].address,
+            TIERS[0]
+          );
+        await tx1.wait();
+        const tx2: ContractTransaction =
+          await treasury_account.fundABiz.claimRefundFor(
+            funders[i].address,
+            TIERS[1]
+          );
+        await tx2.wait();
+        const tx3: ContractTransaction =
+          await treasury_account.fundABiz.claimRefundFor(
+            funders[i].address,
+            TIERS[2]
+          );
+        await tx3.wait();
+      }
+      const finalBals: number[] = await getAccountBalances(
+        fundersAddresses,
+        mockErc20
+      );
+      for (let i = 0; i < amounts.length; i++) {
+        assert.equal(finalBals[i] - initialBals[i], amounts[i]);
+      }
+    });
     it("rejects claiming refund when campaign succeeds", async () => {
       // MOAT decides to close the campaign due to TARGETMET
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
@@ -506,6 +545,46 @@ describe("FundABusiness Unit Tests", function () {
         const tx3: ContractTransaction = await funders[i].fundABiz.claimNft(
           TIERS[2]
         );
+        await tx3.wait();
+        const lastTokenIdTier1 =
+          Number(await nftTier1Contract.getTokenCounter()) - 1;
+        const lastTokenIdTier2 =
+          Number(await nftTier2Contract.getTokenCounter()) - 1;
+        const lastTokenIdTier3 =
+          Number(await nftTier3Contract.getTokenCounter()) - 1;
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
+        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
+          .to.emit(fundABiz, "IsTheTrueOwner")
+          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
+      }
+    });
+    it("allows airdropping NFT perks to funders", async () => {
+      await moveTime(31968000);
+      await setNftContracts(nftMockAddresses);
+
+      for (let i = 0; i < funders.length; i++) {
+        const tx1: ContractTransaction =
+          await treasury_account.fundABiz.claimNftFor(
+            funders[i].address,
+            TIERS[0]
+          );
+        await tx1.wait();
+        const tx2: ContractTransaction =
+          await treasury_account.fundABiz.claimNftFor(
+            funders[i].address,
+            TIERS[1]
+          );
+        await tx2.wait();
+        const tx3: ContractTransaction =
+          await treasury_account.fundABiz.claimNftFor(
+            funders[i].address,
+            TIERS[2]
+          );
         await tx3.wait();
         const lastTokenIdTier1 =
           Number(await nftTier1Contract.getTokenCounter()) - 1;
@@ -777,6 +856,20 @@ describe("FundABusiness Unit Tests", function () {
       await moveTime(1000);
       await expect(bob.fundABiz.closeFundingRound(FAILURE)).to.be.rejectedWith(
         "AccessControl"
+      );
+    });
+    it("emits CampaignSuccessful event", async () => {
+      await moveTime(1000);
+      await expect(deployer.fundABiz.closeFundingRound(TARGETMET)).to.emit(
+        fundABiz,
+        "CampaignSuccessful"
+      );
+    });
+    it("emits CampaignFailed event", async () => {
+      await moveTime(1000);
+      await expect(deployer.fundABiz.closeFundingRound(FAILURE)).to.emit(
+        fundABiz,
+        "CampaignFailed"
       );
     });
     it("rejects funding round closure for invalid reason", async () => {
