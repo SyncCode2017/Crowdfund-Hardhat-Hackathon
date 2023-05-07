@@ -70,7 +70,10 @@ export interface IFundABusinessInterface extends utils.Interface {
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
     "fiatContributeOnBehalfOf(address[],uint256[],uint256[],uint256)": FunctionFragment;
+    "getBusinessBalance()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
+    "getQuantityOfTierBought(uint256)": FunctionFragment;
+    "getTierPrice(uint256)": FunctionFragment;
     "isOwnerOf(uint256,uint256)": FunctionFragment;
     "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
@@ -95,7 +98,10 @@ export interface IFundABusinessInterface extends utils.Interface {
       | "contribute"
       | "contributeOnBehalfOf"
       | "fiatContributeOnBehalfOf"
+      | "getBusinessBalance"
       | "getFundersAddresses"
+      | "getQuantityOfTierBought"
+      | "getTierPrice"
       | "isOwnerOf"
       | "setAllowedToken"
       | "setBusinessAddress"
@@ -155,8 +161,20 @@ export interface IFundABusinessInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getBusinessBalance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getFundersAddresses",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getQuantityOfTierBought",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTierPrice",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "isOwnerOf",
@@ -234,7 +252,19 @@ export interface IFundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getBusinessBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getFundersAddresses",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getQuantityOfTierBought",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTierPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isOwnerOf", data: BytesLike): Result;
@@ -484,7 +514,19 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
@@ -595,7 +637,19 @@ export interface IFundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+  getQuantityOfTierBought(
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getTierPrice(
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   isOwnerOf(
     _tier: PromiseOrValue<BigNumberish>,
@@ -706,7 +760,19 @@ export interface IFundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
@@ -890,7 +956,19 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
@@ -1002,7 +1080,21 @@ export interface IFundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    getBusinessBalance(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getFundersAddresses(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

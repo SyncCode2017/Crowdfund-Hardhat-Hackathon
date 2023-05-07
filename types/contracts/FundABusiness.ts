@@ -66,6 +66,7 @@ export interface FundABusinessInterface extends utils.Interface {
     "PAUSER_ROLE()": FunctionFragment;
     "allowedErc20Token()": FunctionFragment;
     "approveMilestoneAndReleaseFund(uint256)": FunctionFragment;
+    "areNftTokensSet()": FunctionFragment;
     "businessAddress()": FunctionFragment;
     "businessBalance(address)": FunctionFragment;
     "campaignDecisionTime()": FunctionFragment;
@@ -83,8 +84,11 @@ export interface FundABusinessInterface extends utils.Interface {
     "fractionOfMilestone(uint256)": FunctionFragment;
     "fundRaised()": FunctionFragment;
     "fundRaisedMinusFee()": FunctionFragment;
+    "getBusinessBalance()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
+    "getQuantityOfTierBought(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
+    "getTierPrice(uint256)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasClaimedNft(address,uint256)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
@@ -123,6 +127,7 @@ export interface FundABusinessInterface extends utils.Interface {
       | "PAUSER_ROLE"
       | "allowedErc20Token"
       | "approveMilestoneAndReleaseFund"
+      | "areNftTokensSet"
       | "businessAddress"
       | "businessBalance"
       | "campaignDecisionTime"
@@ -140,8 +145,11 @@ export interface FundABusinessInterface extends utils.Interface {
       | "fractionOfMilestone"
       | "fundRaised"
       | "fundRaisedMinusFee"
+      | "getBusinessBalance"
       | "getFundersAddresses"
+      | "getQuantityOfTierBought"
       | "getRoleAdmin"
+      | "getTierPrice"
       | "grantRole"
       | "hasClaimedNft"
       | "hasRole"
@@ -192,6 +200,10 @@ export interface FundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "approveMilestoneAndReleaseFund",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "areNftTokensSet",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "businessAddress",
@@ -271,12 +283,24 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getBusinessBalance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getFundersAddresses",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getQuantityOfTierBought",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTierPrice",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "grantRole",
@@ -404,6 +428,10 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "areNftTokensSet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "businessAddress",
     data: BytesLike
   ): Result;
@@ -463,11 +491,23 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getBusinessBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getFundersAddresses",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getQuantityOfTierBought",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTierPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
@@ -783,6 +823,8 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    areNftTokensSet(overrides?: CallOverrides): Promise<[boolean]>;
+
     businessAddress(overrides?: CallOverrides): Promise<[string]>;
 
     businessBalance(
@@ -855,12 +897,24 @@ export interface FundABusiness extends BaseContract {
 
     fundRaisedMinusFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -1010,6 +1064,8 @@ export interface FundABusiness extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  areNftTokensSet(overrides?: CallOverrides): Promise<boolean>;
+
   businessAddress(overrides?: CallOverrides): Promise<string>;
 
   businessBalance(
@@ -1082,12 +1138,24 @@ export interface FundABusiness extends BaseContract {
 
   fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+  getQuantityOfTierBought(
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  getTierPrice(
+    _tier: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   grantRole(
     role: PromiseOrValue<BytesLike>,
@@ -1237,6 +1305,8 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    areNftTokensSet(overrides?: CallOverrides): Promise<boolean>;
+
     businessAddress(overrides?: CallOverrides): Promise<string>;
 
     businessBalance(
@@ -1309,12 +1379,24 @@ export interface FundABusiness extends BaseContract {
 
     fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -1572,6 +1654,8 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    areNftTokensSet(overrides?: CallOverrides): Promise<BigNumber>;
+
     businessAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     businessBalance(
@@ -1644,10 +1728,22 @@ export interface FundABusiness extends BaseContract {
 
     fundRaisedMinusFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1802,6 +1898,8 @@ export interface FundABusiness extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    areNftTokensSet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     businessAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     businessBalance(
@@ -1878,12 +1976,26 @@ export interface FundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getBusinessBalance(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getFundersAddresses(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getQuantityOfTierBought(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getTierPrice(
+      _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

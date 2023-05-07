@@ -9,7 +9,7 @@ import {
   TIERS_NAMES,
   nftMockContracts,
   nftMockAddresses,
-  CROWDDIT_WALLETS,
+  MOAT_WALLETS,
 } from "../utils/constants";
 import { getBlockConfirmations, verify } from "../utils/helper-functions";
 
@@ -31,13 +31,20 @@ const deployMockTokens: DeployFunction = async function (
 
   if (!developmentChains.includes(network.name)) {
     argsErc20 = [
-      CROWDDIT_WALLETS,
+      MOAT_WALLETS,
       [ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT],
     ];
   } else {
     argsErc20 = [
-      [alice, bob, charlie, dave, erin],
-      [ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT, ERC20_AMOUNT],
+      [deployer, alice, bob, charlie, dave, erin],
+      [
+        ERC20_AMOUNT,
+        ERC20_AMOUNT,
+        ERC20_AMOUNT,
+        ERC20_AMOUNT,
+        ERC20_AMOUNT,
+        ERC20_AMOUNT,
+      ],
     ];
   }
   const mockErc20: DeployResult = await deploy("MockERC20", {

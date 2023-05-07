@@ -78,8 +78,9 @@ const deployNftPerks: DeployFunction = async function (
       await verify(nftPerksAddresses[index], argsNFT);
     }
   }
-  // Set up Minter role for the NFT Contracts on testnet / mainnet
-  if (!developmentChains.includes(network.name)) {
+  // Set up Minter role for the NFT Contracts
+  const SET_NFT_PERKS = process.env.SET_NFT_PERKS!;
+  if (SET_NFT_PERKS === "true") {
     log("-----------------------------------------------------------");
     log("Setting up NFT contracts for Minter role...");
 
@@ -113,10 +114,7 @@ const deployNftPerks: DeployFunction = async function (
         "Minter role granted to FundABusiness Contract and Default Admin Role revoked!"
       );
       // Set the NFT Perks Contracts to the FundABusiness Contract
-      const SET_NFT_PERKS = process.env.SET_NFT_PERKS!;
-      if (SET_NFT_PERKS === "true") {
-        await setNftContracts(nftPerksAddresses);
-      }
+      await setNftContracts(nftPerksAddresses);
     }
   }
 };

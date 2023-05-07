@@ -104,6 +104,14 @@ export const getFutureContractAddress = async (
   return futureAddress;
 };
 
+export const sumOfElementsInArray = (elements: number[]): Promise<number> =>{
+  let sum: number = 0
+  for (let index in elements){
+    sum += elements[index]
+  }
+  return sum
+}
+
 export const getEventEmitted = async (
   tx: ContractTransaction,
   contractInterface: Interface,

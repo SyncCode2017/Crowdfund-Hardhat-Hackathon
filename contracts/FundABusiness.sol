@@ -52,7 +52,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     // cumulative amount of tokens released to business based on milestones completed so far
     uint256 public cumFundReleased;
     // returns true if the NFT perks contracts have been set
-    bool areNftTokensSet = false;
+    bool public areNftTokensSet = false;
     // returns true if the MOAT fee has been deducted
     bool isFeeTaken = false;
     // ERC20 token approved for campaign funding e.g USDC, USDT
@@ -74,6 +74,8 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     mapping(uint256 => bool) public isMilestoneApproved;
     // returns the amount of tokens available for the business to claim
     mapping(address => uint256) public businessBalance;
+    // returns the quantities of tier perks bought
+    mapping(uint256 => uint256) private quantityOfTierBought;
 
     // array of tiers available and thier prices
     FundingTierCost[] fundingTiersCosts;
@@ -241,6 +243,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         uint256 _quantity = tierBalanceOf[_funder][_tier];
         // get the amount to refund to the funder
         uint256 _amount = tierCost[_tier].mul(_quantity);
+        if (_amount <= 0) revert NoRefund();
         // set funder's balance to zero
         tierBalanceOf[_funder][_tier] = 0;
         _sendToken(_funder, _amount);
@@ -430,6 +433,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
 
     function _updateFunderBalance(address _funder, uint256 _tier, uint256 _quantity) internal {
         tierBalanceOf[_funder][_tier] += _quantity;
+        quantityOfTierBought[_tier] += _quantity;
         emit ContributionReceived(_funder, _tier);
         // check whether is an existing funder
         if (!isAFunder[_funder]) {
@@ -469,4 +473,23 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         address[] memory _fundersAddresses = fundersAddresses;
         return _fundersAddresses;
     }
+
+    /// @dev returns the quantities of tier perks bought so far
+    /// @param _tier funding or perks category
+    function getQuantityOfTierBought(uint256 _tier) external view onlyRole(MANAGER_ROLE) returns (uint256) {
+        return quantityOfTierBought[_tier];
+    }
+
+    /// @dev returns the price of a given tier
+    /// @param _tier funding or perks category
+    function getTierPrice(uint256 _tier) external view returns (uint256) {
+        if (tierCost[_tier] == 0) revert InvalidTier();
+        return tierCost[_tier];
+    }
+
+    /// @dev returns the balance of the business address
+    function getBusinessBalance() external view returns (uint256) {
+        return businessBalance[businessAddress];
+    }
+
 }

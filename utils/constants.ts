@@ -28,8 +28,12 @@ export const TIERS = [1, 2, 3];
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 // [unix start time, unix end time, time (in seconds) required to make a decision]
+
+// For unit test
 export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
-// export const CAMPAIGN_PERIOD: number[] = [1680714000, 1680807600, 79200];
+
+// For running localhost for front-end
+// export const CAMPAIGN_PERIOD: number[] = [1683477930, 1718601630, 79200];
 
 export const TIER1_PRICE: BigNumber = ONE.mul(100);
 export const TIER2_PRICE: BigNumber = ONE.mul(200);
@@ -76,3 +80,9 @@ export const TOKEN_URIS = [
 export const ROYALTY_FEE = 2500;
 export const discount_array = [10, 20, 30];
 export const access_array = ["vip1", "vip2", "vip3"];
+
+export const frontEndContractsFile = [
+  "../front-end/constants/fundABizAddress.json",
+  "../front-end/constants/nftPerksAddresses.json",
+];
+export const frontEndAbiLocation = "../front-end/constants/";

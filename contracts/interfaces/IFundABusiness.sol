@@ -10,6 +10,7 @@ interface IFundABusiness {
     error NeedMoreTokens();
     error CampaignNotOpen();
     error InvalidValues();
+    error InvalidTier();
     error NotAFunder();
     error Undecided();
     error NoRefund();
@@ -173,4 +174,16 @@ interface IFundABusiness {
 
     /// @dev returns the array of all funder addresses
     function getFundersAddresses() external view returns (address[] memory);
+
+    /// @dev returns the quantities of tier perks bought so far
+    /// @param _tier funding or perks category
+    function getQuantityOfTierBought(uint256 _tier) external view returns (uint256);
+
+    /// @dev returns the price of a given tier
+    /// @param _tier funding or perks category
+    function getTierPrice(uint256 _tier) external view returns (uint256);
+
+    /// @dev returns the balance of the business address
+    function getBusinessBalance() external view returns (uint256);
+
 }

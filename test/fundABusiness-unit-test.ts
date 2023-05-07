@@ -31,6 +31,7 @@ import {
   crowdFundABiz,
   getAccountBalances,
   setupUser,
+  sumOfElementsInArray,
 } from "../utils/helper-functions";
 import { moveTime } from "../utils/move-time";
 
@@ -188,12 +189,15 @@ describe("FundABusiness Unit Tests", function () {
       ];
       for (let i = 0; i < TIERS.length; i++) {
         tierCosts.push((await fundABiz.tierCost(TIERS[i])).toString());
+        const tierPrice = Number(await fundABiz.getTierPrice(TIERS[i]));
+        assert.equal(tierPrice, Number(expectedTierPrices[i]));
       }
       checkArrayElements(tierCosts, expectedTierPrices);
     });
   });
   describe("contributeOnBehalfOf and contribute functions", function () {
     it("allows funders to contribute whenNotPaused and campaign is open", async () => {
+      const totalTierQuantities = sumOfElementsInArray(quantities)
       // movetime to when campaign has started
       await moveTime(31968000);
       const initialBals: number[] = await getAccountBalances(
@@ -208,9 +212,19 @@ describe("FundABusiness Unit Tests", function () {
       const currentFunders: string[] =
         await deployer.fundABiz.getFundersAddresses();
 
+      let totalTiersQuantitiesBought: number[] = []
+
+      for (let index in TIERS){
+        totalTiersQuantitiesBought.push(Number(await deployer.fundABiz.getQuantityOfTierBought(TIERS[index])));
+      }
+
       checkArrayElements(currentFunders, fundersAddresses);
 
-      for (let i = 0; i < amounts.length; i++) {
+      for (let i in TIERS) {
+        assert.equal(totalTierQuantities, totalTiersQuantitiesBought[i]);
+      }
+
+      for (let i in amounts) {
         assert.equal(initialBals[i] - finalBals[i], amounts[i]);
       }
     });
@@ -875,7 +889,7 @@ describe("FundABusiness Unit Tests", function () {
     it("rejects funding round closure for invalid reason", async () => {
       await moveTime(1000);
       const invalidReason = 2;
-      await expect(bob.fundABiz.closeFundingRound(invalidReason)).to.be
+      await expect(deployer.fundABiz.closeFundingRound(invalidReason)).to.be
         .rejected;
     });
   });
