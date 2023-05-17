@@ -3,7 +3,6 @@ import { NFTStorage, File } from "nft.storage";
 import mime from "mime";
 import fs from "fs";
 import path from "path";
-// require("dotenv").config();
 import dotenv from "dotenv";
 import { discount_array, access_array } from "./constants";
 import { Token, TokenInput } from "nft.storage/dist/src/lib/interface";

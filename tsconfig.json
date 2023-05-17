@@ -13,8 +13,9 @@
     "./deploy",
     "./test",
     "Lock.ts",
-    "utils/set-nft-contracts.ts"
-, "proveddit/provedditEvent.ts"  ],
+    "utils/set-nft-contracts.ts",
+    "proveddit/provedditEvent.ts"
+  ],
   "exclude": [],
   "files": [
     "./hardhat.config.ts",
