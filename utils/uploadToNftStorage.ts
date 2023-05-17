@@ -49,6 +49,6 @@ export async function storeNFTs(imagesPath: string) {
  */
 async function fileFromPath(filePath: string) {
   const content = await fs.promises.readFile(filePath);
-  const type = mime.getType(filePath);
+  const type = mime.getType(filePath)!;
   return new File([content], path.basename(filePath), { type });
 }
