@@ -19,25 +19,25 @@ export const MOAT_WALLETS: Array<string> = [
 
 // ------------------------ FundABusiness configs ------------------------
 export const ONE: BigNumber = ethers.utils.parseUnits("1", 18);
-export const ERC20_AMOUNT: BigNumber = ONE.mul(10000);
-export const ALLOWED_TOKEN = "";
+export const DECIMALS = "8";
+export const ERC20_AMOUNT = ONE.mul(10000);
+export const INITIAL_PRICE = "200000000000"; // 2000
 export const TIERS_NAMES: string[] = ["TIER1", "TIER2", "TIER3"];
 export const TIERS_SYMBOLS: string[] = ["TIER1", "TIER2", "TIER3"];
-export const AMOUNTS_TO_BE_RAISED = [ONE.mul(1000), ONE.mul(10000)];
+export const AMOUNTS_TO_BE_RAISED = [ONE.mul(3), ONE.mul(5)];
 export const TIERS = [1, 2, 3];
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-// [unix start time, unix end time, time (in seconds) required to make a decision]
-
 // For unit test
+// [unix start time, unix end time, time (in seconds) required to make a decision]
 export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
 
 // For running localhost for front-end
 // export const CAMPAIGN_PERIOD: number[] = [1683477930, 1718601630, 79200];
 
-export const TIER1_PRICE: BigNumber = ONE.mul(100);
-export const TIER2_PRICE: BigNumber = ONE.mul(200);
-export const TIER3_PRICE: BigNumber = ONE.mul(300);
+export const TIER1_PRICE: number = 100; //ONE.mul(100);
+export const TIER2_PRICE: number = 200; //ONE.mul(200);
+export const TIER3_PRICE: number = 300; //ONE.mul(300);
 export const sumOfTiersPrices = 100 + 200 + 300;
 
 /** FUNDERS_TIERS_AND_COST = [
@@ -45,7 +45,7 @@ export const sumOfTiersPrices = 100 + 200 + 300;
   [TIER2, 100 USD],
   [TIER3, 200 USD],
 ] */
-export const FUNDERS_TIERS_AND_COST: [number, BigNumber][] = [
+export const FUNDERS_TIERS_AND_COST: [number, number][] = [
   [TIERS[0], TIER1_PRICE],
   [TIERS[1], TIER2_PRICE],
   [TIERS[2], TIER3_PRICE],
@@ -82,7 +82,7 @@ export const discount_array = [10, 20, 30];
 export const access_array = ["vip1", "vip2", "vip3"];
 
 export const frontEndContractsFile = [
-  "../front-end/constants/fundABizAddress.json",
-  "../front-end/constants/nftPerksAddresses.json",
+  "../front-end-nextjs/constants/fundABizAddress.json",
+  "../front-end-nextjs/constants/nftPerksAddresses.json",
 ];
-export const frontEndAbiLocation = "../front-end/constants/";
+export const frontEndAbiLocation = "../front-end-nextjs/constants/";

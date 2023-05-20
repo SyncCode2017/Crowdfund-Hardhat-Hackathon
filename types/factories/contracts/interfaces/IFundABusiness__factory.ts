@@ -52,6 +52,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "InvalidAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InvalidTier",
     type: "error",
   },
@@ -405,7 +410,7 @@ const _abi = [
     ],
     name: "contribute",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -428,7 +433,7 @@ const _abi = [
     ],
     name: "contributeOnBehalfOf",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -448,15 +453,10 @@ const _abi = [
         name: "_quantities",
         type: "uint256[]",
       },
-      {
-        internalType: "uint256",
-        name: "_totalAmount",
-        type: "uint256",
-      },
     ],
     name: "fiatContributeOnBehalfOf",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -483,6 +483,30 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tier",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_quantity",
+        type: "uint256",
+      },
+    ],
+    name: "getOneNativeCoinRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -537,19 +561,6 @@ const _abi = [
       },
     ],
     name: "isOwnerOf",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_allowedErc20Token",
-        type: "address",
-      },
-    ],
-    name: "setAllowedToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

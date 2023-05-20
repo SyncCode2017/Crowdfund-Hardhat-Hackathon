@@ -17,18 +17,15 @@ import {
   CAMPAIGN_PERIOD,
   FAILURE,
   TARGETMET,
-  sumOfTiersPrices,
 } from "../utils/constants";
 import {
-  MockERC20 as MockERC20Type,
+  MockV3Aggregator as MockV3AggregatorType,
   BasicNft as BasicNftType,
   FundABusiness as FundABusinessType,
-  contracts,
 } from "../types";
 import setNftContracts from "../utils/set-nft-contracts";
 import {
   TestAccount,
-  crowdFundABiz,
   getAccountBalances,
   setupUser,
   sumOfElementsInArray,
@@ -50,7 +47,6 @@ const setup = deployments.createFixture(async () => {
 
   const contracts = {
     fundABiz: <FundABusinessType>await ethers.getContract("FundABusiness"),
-    mockErc20: <MockERC20Type>await ethers.getContract("MockERC20"),
     nftTier1Contract: <BasicNftType>(
       await ethers.getContractAt("BasicNft", nftMockAddresses[0])
     ),
@@ -80,6 +76,7 @@ function checkArrayElements(values: unknown[], matchWith: unknown[]) {
     assert.equal(values[i], matchWith[i]);
   }
 }
+
 describe("FundABusiness Unit Tests", function () {
   let deployer: TestAccount,
     alice: TestAccount,
@@ -91,9 +88,8 @@ describe("FundABusiness Unit Tests", function () {
     funders: TestAccount[],
     fundersAddresses: string[],
     quantities: number[],
-    amounts: number[],
+    fundingAmounts: number[],
     fundABiz: FundABusinessType,
-    mockErc20: MockERC20Type,
     business_account: TestAccount,
     treasury_account: TestAccount,
     nftTier1Contract: BasicNftType,
@@ -110,7 +106,6 @@ describe("FundABusiness Unit Tests", function () {
       charlie,
       dave,
       erin,
-      mockErc20,
       fundABiz,
       nftTier1Contract,
       nftTier2Contract,
@@ -119,56 +114,68 @@ describe("FundABusiness Unit Tests", function () {
     accounts = await ethers.getSigners();
     funders = [alice, bob, charlie, dave, erin];
     quantities = [10, 5, 5, 10, 7];
-    amounts = [
-      quantities[0] * sumOfTiersPrices,
-      quantities[1] * sumOfTiersPrices,
-      quantities[2] * sumOfTiersPrices,
-      quantities[3] * sumOfTiersPrices,
-      quantities[4] * sumOfTiersPrices,
-    ];
-    const deployerTokAmount: BigNumber = ONE.mul(100000);
     fundersAddresses = funders.map((x) => x.address);
-    // Mint mockErc20 to deployer
-    const txMint: ContractTransaction = await deployer.mockErc20.mint(
-      deployer.address,
-      deployerTokAmount
-    );
-    await txMint.wait();
-    // Approve deployertokens for fundAbiz
-    const txDepApp: ContractTransaction = await deployer.mockErc20.approve(
-      fundABiz.address,
-      deployerTokAmount
-    );
-    await txDepApp.wait();
-
-    // Set approval for mockErc20 spending
-    for (let i = 0; i < funders.length; i++) {
-      const txApproval: ContractTransaction = await funders[
-        i
-      ].mockErc20.approve(
-        fundABiz.address,
-        ethers.utils.parseEther((2 * amounts[i]).toString())
-      );
-      await txApproval.wait();
-    }
   });
+
+  async function crowdFundABiz(funders: TestAccount[], quantities: number[]) {
+    fundingAmounts = [];
+    for (let i = 0; i < funders.length; i++) {
+      const tier1TotalEthAmountInWei = await fundABiz.getOneNativeCoinRate(
+        TIERS[0],
+        quantities[i]
+      );
+      const tier2TotalEthAmountInWei = await fundABiz.getOneNativeCoinRate(
+        TIERS[1],
+        quantities[i]
+      );
+      const tier3TotalEthAmountInWei = await fundABiz.getOneNativeCoinRate(
+        TIERS[2],
+        quantities[i]
+      );
+      const tx1: ContractTransaction = await funders[i].fundABiz.contribute(
+        TIERS[0],
+        quantities[i],
+        { value: tier1TotalEthAmountInWei }
+      );
+      await tx1.wait();
+      const tx2: ContractTransaction = await funders[i].fundABiz.contribute(
+        TIERS[1],
+        quantities[i],
+        { value: tier2TotalEthAmountInWei }
+      );
+      await tx2.wait();
+      const tx3: ContractTransaction = await funders[i].fundABiz.contribute(
+        TIERS[2],
+        quantities[i],
+        { value: tier3TotalEthAmountInWei }
+      );
+      await tx3.wait();
+      const sumOfAmountsInEth = sumOfElementsInArray([
+        Number(ethers.utils.formatEther(tier1TotalEthAmountInWei)),
+        Number(ethers.utils.formatEther(tier2TotalEthAmountInWei)),
+        Number(ethers.utils.formatEther(tier3TotalEthAmountInWei)),
+      ]);
+
+      fundingAmounts.push(sumOfAmountsInEth);
+    }
+    console.log("Business crowd-funded!");
+  }
 
   describe("constructor", function () {
     it("Check FundABusiness is deployed", async () => {
       expect(fundABiz.address).to.be.not.empty;
     });
-    it("initiallizes allowedErc20Token correctly", async () => {
-      const allowedToken: string = await fundABiz.allowedErc20Token();
-      assert.equal(allowedToken, mockErc20.address);
-    });
+
     it("initiallizes businessAddress correctly", async () => {
       const businessAddress: string = await fundABiz.businessAddress();
       assert.equal(businessAddress, business_account.address);
     });
+
     it("initiallizes moatFeeNumerator correctly", async () => {
       const feeNum = Number(await fundABiz.moatFeeNumerator());
       assert.equal(feeNum, MOAT_FEE_NUMERATOR);
     });
+
     it("initiallizes minTargetAmount correctly", async () => {
       const minTargetAmount = await fundABiz.minTargetAmount();
       assert.equal(
@@ -176,10 +183,12 @@ describe("FundABusiness Unit Tests", function () {
         AMOUNTS_TO_BE_RAISED[0].toString()
       );
     });
+
     it("initiallizes targetAmount correctly", async () => {
       const targetAmount = await fundABiz.targetAmount();
       assert.equal(targetAmount.toString(), AMOUNTS_TO_BE_RAISED[1].toString());
     });
+
     it("initiallizes tierCost correctly", async () => {
       let tierCosts = [];
       const expectedTierPrices = [
@@ -195,27 +204,30 @@ describe("FundABusiness Unit Tests", function () {
       checkArrayElements(tierCosts, expectedTierPrices);
     });
   });
+
   describe("contributeOnBehalfOf and contribute functions", function () {
     it("allows funders to contribute whenNotPaused and campaign is open", async () => {
-      const totalTierQuantities = sumOfElementsInArray(quantities)
+      const totalTierQuantities = sumOfElementsInArray(quantities);
       // movetime to when campaign has started
       await moveTime(31968000);
       const initialBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
       await crowdFundABiz(funders, quantities);
       const finalBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
       const currentFunders: string[] =
         await deployer.fundABiz.getFundersAddresses();
 
-      let totalTiersQuantitiesBought: number[] = []
+      let totalTiersQuantitiesBought: number[] = [];
 
-      for (let index in TIERS){
-        totalTiersQuantitiesBought.push(Number(await deployer.fundABiz.getQuantityOfTierBought(TIERS[index])));
+      for (let index in TIERS) {
+        totalTiersQuantitiesBought.push(
+          Number(await deployer.fundABiz.getQuantityOfTierBought(TIERS[index]))
+        );
       }
 
       checkArrayElements(currentFunders, fundersAddresses);
@@ -224,10 +236,14 @@ describe("FundABusiness Unit Tests", function () {
         assert.equal(totalTierQuantities, totalTiersQuantitiesBought[i]);
       }
 
-      for (let i in amounts) {
-        assert.equal(initialBals[i] - finalBals[i], amounts[i]);
+      for (let i in fundingAmounts) {
+        assert.equal(
+          Math.floor(initialBals[i] - finalBals[i]),
+          Math.floor(fundingAmounts[i])
+        );
       }
     });
+
     it("rejects contribution when campaign is not open", async () => {
       // movetime to when campaign has closed
       await moveTime(60480000);
@@ -236,6 +252,7 @@ describe("FundABusiness Unit Tests", function () {
         alice.fundABiz.contribute(TIERS[0], quantity)
       ).to.be.rejectedWith("CampaignNotOpen()");
     });
+
     it("rejects contribution when contract is paused", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
@@ -246,6 +263,7 @@ describe("FundABusiness Unit Tests", function () {
         alice.fundABiz.contribute(TIERS[0], quantity)
       ).to.be.revertedWith("Pausable: paused");
     });
+
     it("rejects contribution for zero address", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
@@ -254,11 +272,20 @@ describe("FundABusiness Unit Tests", function () {
         alice.fundABiz.contributeOnBehalfOf(ADDRESS_ZERO, TIERS[0], quantity)
       ).to.be.reverted;
     });
+
     it("emits ContributionReceived event", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
       const quantity = 5;
-      await expect(alice.fundABiz.contribute(TIERS[0], quantity))
+      const tier1TotalEthAmountInWei = await fundABiz.getOneNativeCoinRate(
+        TIERS[0],
+        quantity
+      );
+      await expect(
+        alice.fundABiz.contribute(TIERS[0], quantity, {
+          value: tier1TotalEthAmountInWei,
+        })
+      )
         .to.emit(fundABiz, "ContributionReceived")
         .withArgs(alice.address, TIERS[0]);
     });
@@ -278,7 +305,7 @@ describe("FundABusiness Unit Tests", function () {
       await tx.wait();
       const initialBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
       for (let i = 0; i < funders.length; i++) {
         const tx1: ContractTransaction = await funders[i].fundABiz.claimRefund(
@@ -296,10 +323,13 @@ describe("FundABusiness Unit Tests", function () {
       }
       const finalBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
-      for (let i = 0; i < amounts.length; i++) {
-        assert.equal(finalBals[i] - initialBals[i], amounts[i]);
+      for (let i = 0; i < fundingAmounts.length; i++) {
+        assert.equal(
+          (finalBals[i] - initialBals[i]).toFixed(2),
+          fundingAmounts[i].toFixed(2)
+        );
       }
     });
     it("allows airdropping refund to funders when campaign has failed", async () => {
@@ -311,7 +341,7 @@ describe("FundABusiness Unit Tests", function () {
       await tx.wait();
       const initialBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
       for (let i = 0; i < funders.length; i++) {
         const tx1: ContractTransaction =
@@ -335,10 +365,13 @@ describe("FundABusiness Unit Tests", function () {
       }
       const finalBals: number[] = await getAccountBalances(
         fundersAddresses,
-        mockErc20
+        fundABiz
       );
-      for (let i = 0; i < amounts.length; i++) {
-        assert.equal(finalBals[i] - initialBals[i], amounts[i]);
+      for (let i = 0; i < fundingAmounts.length; i++) {
+        assert.equal(
+          Math.floor(finalBals[i] - initialBals[i]),
+          Math.floor(fundingAmounts[i])
+        );
       }
     });
     it("rejects claiming refund when campaign succeeds", async () => {
@@ -409,81 +442,62 @@ describe("FundABusiness Unit Tests", function () {
       await moveTime(31968000);
       const initialBals: number[] = await getAccountBalances(
         [deployer.address],
-        mockErc20
+        fundABiz
       );
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       const tx: ContractTransaction =
         await deployer.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         );
       await tx.wait();
       const finalBals: number[] = await getAccountBalances(
         [deployer.address],
-        mockErc20
+        fundABiz
       );
       const currentFunders: string[] =
         await deployer.fundABiz.getFundersAddresses();
 
       checkArrayElements(currentFunders, fundersAddresses);
-      assert.equal(initialBals[0] - finalBals[0], totalAmountInEth);
+      assert.equal(Math.floor(initialBals[0] - finalBals[0]), totalAmountInEth);
     });
     it("allows only manager role to deposit on behalf of fiat funders", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await bob.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       await expect(
         bob.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         )
       ).to.be.rejectedWith("AccessControl");
     });
     it("rejects deposit when made outside campaign start time and campaign decision time window", async () => {
       // movetime to when campaign has started
       await moveTime(1000);
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       await expect(
         deployer.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         )
       ).to.be.rejectedWith("NotReceivingFunds()");
     });
+
     it("rejects deposit when contract is paused", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       // pause the contract
       const tx1 = await deployer.fundABiz.pause();
       await tx1.wait();
@@ -492,45 +506,37 @@ describe("FundABusiness Unit Tests", function () {
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         )
       ).to.be.rejectedWith("Pausable: paused");
     });
+
     it("rejects deposit when arrays of unequal lengths are entered", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       await expect(
         deployer.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         )
       ).to.be.rejectedWith("InvalidValues()");
     });
+
     it("emits FiatContributionReceived", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 20;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
       await expect(
         deployer.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         )
       )
         .to.emit(fundABiz, "FiatContributionReceived")
@@ -678,7 +684,7 @@ describe("FundABusiness Unit Tests", function () {
       await tx.wait();
       const initialBals: number[] = await getAccountBalances(
         [business_account.address],
-        mockErc20
+        fundABiz
       );
       const tx1: ContractTransaction =
         await business_account.fundABiz.withdrawFundRaised();
@@ -688,9 +694,12 @@ describe("FundABusiness Unit Tests", function () {
         Number(ethers.utils.formatEther(netFundRaisedWei)) * milestoneData[1];
       const finalBals: number[] = await getAccountBalances(
         [business_account.address],
-        mockErc20
+        fundABiz
       );
-      assert.equal(finalBals[0] - initialBals[0], amountReleased);
+      assert.equal(
+        (finalBals[0] - initialBals[0]).toFixed(3),
+        amountReleased.toFixed(3)
+      );
     });
     it("allows manager to change businessAddress several times ", async () => {
       const milestones = [0, 1, 2, 3];
@@ -730,7 +739,7 @@ describe("FundABusiness Unit Tests", function () {
 
       const finalContractBal: number[] = await getAccountBalances(
         [fundABiz.address],
-        mockErc20
+        fundABiz
       );
       assert.equal(finalContractBal[0], 0);
     });
@@ -748,30 +757,37 @@ describe("FundABusiness Unit Tests", function () {
           );
         await tx.wait();
 
+        const initialBals: number[] = await getAccountBalances(
+          [business_account.address, fundABiz.address],
+          fundABiz
+        );
+
         const netFundRaisedWei = await fundABiz.fundRaisedMinusFee();
         const netFundRaisedEth = Number(
           ethers.utils.formatEther(netFundRaisedWei)
         );
-        const amountReleasedInEth = Math.floor(
-          netFundRaisedEth * milestoneFractions[index]
-        );
+        const amountReleasedInEth =
+          netFundRaisedEth * milestoneFractions[index];
         const tx1: ContractTransaction =
           await business_account.fundABiz.withdrawFundRaised();
         await tx1.wait();
 
-        await expect(tx1).to.changeTokenBalances(
-          mockErc20,
+        const finalBals: number[] = await getAccountBalances(
           [business_account.address, fundABiz.address],
-          [
-            ethers.utils.parseEther(amountReleasedInEth.toString()),
-            ethers.utils.parseEther((-1 * amountReleasedInEth).toString()),
-          ]
+          fundABiz
         );
+
+        for (let index in finalBals) {
+          assert.equal(
+            Math.abs(finalBals[index] - initialBals[index]).toFixed(3),
+            Math.abs(amountReleasedInEth).toFixed(3)
+          );
+        }
       }
 
       const finalContractBal: number[] = await getAccountBalances(
         [fundABiz.address],
-        mockErc20
+        fundABiz
       );
       assert.equal(finalContractBal[0], 0);
     });
@@ -835,7 +851,7 @@ describe("FundABusiness Unit Tests", function () {
       await moveTime(1000);
       const initialBals: number[] = await getAccountBalances(
         [treasury_account.address],
-        mockErc20
+        fundABiz
       );
       // MOAT decides to close the campaign due to TARGETMET
       const tx: ContractTransaction = await deployer.fundABiz.closeFundingRound(
@@ -844,7 +860,7 @@ describe("FundABusiness Unit Tests", function () {
       await tx.wait();
       const finalBals: number[] = await getAccountBalances(
         [treasury_account.address],
-        mockErc20
+        fundABiz
       );
       expect(finalBals[0]).to.be.greaterThan(initialBals[0]);
       const quantity = 10;
@@ -995,7 +1011,7 @@ describe("FundABusiness Unit Tests", function () {
         business_account.address
       );
       const businessBal = Number(ethers.utils.formatEther(businessBalWei));
-      assert.equal(businessBal, amountReleased);
+      assert.equal(businessBal.toFixed(3), amountReleased.toFixed(3));
     });
     it("allows Manager Role to approve multiple milestones and release funds", async () => {
       // movetime to when campaign has closed
@@ -1026,19 +1042,15 @@ describe("FundABusiness Unit Tests", function () {
     });
     it("releases all the tokens after the last milestone", async () => {
       // fiat contribution
-      const totalAmountInEth = 100 * 37;
+      const totalAmountInEth = 100;
       const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const txApproval = await deployer.mockErc20.approve(
-        fundABiz.address,
-        totalAmountInWei
-      );
-      await txApproval.wait();
+
       const tx1: ContractTransaction =
         await deployer.fundABiz.fiatContributeOnBehalfOf(
           fundersAddresses,
           [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
           quantities,
-          totalAmountInWei
+          { value: totalAmountInWei }
         );
       await tx1.wait();
       // movetime to when campaign has closed
@@ -1056,7 +1068,7 @@ describe("FundABusiness Unit Tests", function () {
       await tx3.wait();
       const finalContractBal: number[] = await getAccountBalances(
         [fundABiz.address],
-        mockErc20
+        fundABiz
       );
       assert.equal(finalContractBal[0], 0);
     });
@@ -1110,13 +1122,8 @@ describe("FundABusiness Unit Tests", function () {
       ).to.be.rejectedWith("Undecided()");
     });
   });
+
   describe("setters function", function () {
-    it("allows only manager to setAllowedToken ", async () => {
-      await moveTime(1000);
-      await expect(
-        bob.fundABiz.setAllowedToken(mockErc20.address)
-      ).to.be.rejectedWith("AccessControl");
-    });
     it("allows only manager to setNftPerkContracts ", async () => {
       const TIERS_AND_NFT_CONTRACTS: [number, string][] = [
         [TIERS[0], nftMockAddresses[0]],
@@ -1124,51 +1131,64 @@ describe("FundABusiness Unit Tests", function () {
         [TIERS[2], nftMockAddresses[2]],
       ];
       await expect(
+        //@ts-ignore
         bob.fundABiz.setNftPerkContracts(TIERS_AND_NFT_CONTRACTS)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setTreasuryAddress", async () => {
       await expect(
         alice.fundABiz.setTreasuryAddress(business_account.address)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setBusinessAddress", async () => {
       await expect(
         alice.fundABiz.setBusinessAddress(treasury_account.address)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setFundingTiersAndCosts", async () => {
       await expect(
+        //@ts-ignore
         alice.fundABiz.setFundingTiersAndCosts(FUNDERS_TIERS_AND_COST)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setTargetAmounts", async () => {
       await expect(
         alice.fundABiz.setTargetAmounts(AMOUNTS_TO_BE_RAISED)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setCampaignAndDecisionPeriod", async () => {
       await expect(
         alice.fundABiz.setCampaignAndDecisionPeriod(CAMPAIGN_PERIOD)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setMilestones", async () => {
       await expect(
+        //@ts-ignore
         alice.fundABiz.setMilestones(MILESTONE_SCHEDULE)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("allows only manager to setMOATFee", async () => {
       await expect(
         alice.fundABiz.setMOATFee(MOAT_FEE_NUMERATOR)
       ).to.be.rejectedWith("AccessControl");
     });
+
     it("does not allow setting FundingTiersAndCosts after campaign has started", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
       await expect(
+        //@ts-ignore
         deployer.fundABiz.setFundingTiersAndCosts(FUNDERS_TIERS_AND_COST)
       ).to.be.rejectedWith("TooLateToChange()");
     });
+
     it("does not allow changing MOATFee after campaign has started", async () => {
       // movetime to when campaign has started
       await moveTime(31968000);
@@ -1176,6 +1196,7 @@ describe("FundABusiness Unit Tests", function () {
         deployer.fundABiz.setMOATFee(MOAT_FEE_NUMERATOR)
       ).to.be.rejectedWith("TooLateToChange()");
     });
+
     it("does not allow changing the targetAmounts after decision time has passed", async () => {
       // movetime to when decision time has passed
       await moveTime(63936000);

@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -69,13 +70,13 @@ export interface IFundABusinessInterface extends utils.Interface {
     "closeFundingRound(uint8)": FunctionFragment;
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
-    "fiatContributeOnBehalfOf(address[],uint256[],uint256[],uint256)": FunctionFragment;
+    "fiatContributeOnBehalfOf(address[],uint256[],uint256[])": FunctionFragment;
     "getBusinessBalance()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
+    "getOneNativeCoinRate(uint256,uint256)": FunctionFragment;
     "getQuantityOfTierBought(uint256)": FunctionFragment;
     "getTierPrice(uint256)": FunctionFragment;
     "isOwnerOf(uint256,uint256)": FunctionFragment;
-    "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
     "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
@@ -100,10 +101,10 @@ export interface IFundABusinessInterface extends utils.Interface {
       | "fiatContributeOnBehalfOf"
       | "getBusinessBalance"
       | "getFundersAddresses"
+      | "getOneNativeCoinRate"
       | "getQuantityOfTierBought"
       | "getTierPrice"
       | "isOwnerOf"
-      | "setAllowedToken"
       | "setBusinessAddress"
       | "setCampaignAndDecisionPeriod"
       | "setFundingTiersAndCosts"
@@ -156,8 +157,7 @@ export interface IFundABusinessInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>[]
     ]
   ): string;
   encodeFunctionData(
@@ -167,6 +167,10 @@ export interface IFundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getFundersAddresses",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getOneNativeCoinRate",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getQuantityOfTierBought",
@@ -179,10 +183,6 @@ export interface IFundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isOwnerOf",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAllowedToken",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setBusinessAddress",
@@ -260,6 +260,10 @@ export interface IFundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getOneNativeCoinRate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getQuantityOfTierBought",
     data: BytesLike
   ): Result;
@@ -268,10 +272,6 @@ export interface IFundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isOwnerOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAllowedToken",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setBusinessAddress",
     data: BytesLike
@@ -496,27 +496,32 @@ export interface IFundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     getBusinessBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -531,11 +536,6 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -619,27 +619,32 @@ export interface IFundABusiness extends BaseContract {
   contribute(
     _tier: PromiseOrValue<BigNumberish>,
     _quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contributeOnBehalfOf(
     _funder: PromiseOrValue<string>,
     _tier: PromiseOrValue<BigNumberish>,
     _quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   fiatContributeOnBehalfOf(
     _funders: PromiseOrValue<string>[],
     _tiers: PromiseOrValue<BigNumberish>[],
     _quantities: PromiseOrValue<BigNumberish>[],
-    _totalAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+  getOneNativeCoinRate(
+    _tier: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   getQuantityOfTierBought(
     _tier: PromiseOrValue<BigNumberish>,
@@ -654,11 +659,6 @@ export interface IFundABusiness extends BaseContract {
   isOwnerOf(
     _tier: PromiseOrValue<BigNumberish>,
     _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAllowedToken(
-    _allowedErc20Token: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -756,13 +756,18 @@ export interface IFundABusiness extends BaseContract {
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -777,11 +782,6 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -938,27 +938,32 @@ export interface IFundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -973,11 +978,6 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1062,22 +1062,21 @@ export interface IFundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     fiatContributeOnBehalfOf(
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     getBusinessBalance(
@@ -1086,6 +1085,12 @@ export interface IFundABusiness extends BaseContract {
 
     getFundersAddresses(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     getQuantityOfTierBought(
@@ -1101,11 +1106,6 @@ export interface IFundABusiness extends BaseContract {
     isOwnerOf(
       _tier: PromiseOrValue<BigNumberish>,
       _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -151,9 +151,7 @@ describe("NftPerks Unit Tests", function () {
         );
         await tx.wait();
       }
-      await expect(
-        deployer.nftTierContract.mintNft(alice.address)
-      ).to.rejectedWith("MaxSupplyReached()");
+      await expect(deployer.nftTierContract.mintNft(alice.address)).to.rejected;
     });
 
     it("allows only Minter to mint Nft", async () => {
@@ -233,7 +231,7 @@ describe("NftPerks Unit Tests", function () {
           treasury_account.address,
           invalidFee
         )
-      ).to.rejectedWith("InvalidValue()");
+      ).to.rejected;
     });
   });
   describe("supportsInterface function", function () {

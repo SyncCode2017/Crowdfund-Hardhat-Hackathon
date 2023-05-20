@@ -10,7 +10,7 @@ import { developmentChains, nftPerksAddresses } from "../utils/constants";
 const updateFrontEnd: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  if (process.env.UPDATE_FRONT_END) {
+  if (process.env.UPDATE_FRONT_END! == "true") {
     console.log("Writing to front end...");
     await updateContractAddresses();
     await updateAbi();
@@ -26,13 +26,6 @@ async function updateAbi() {
   fs.writeFileSync(
     `${frontEndAbiLocation}FundABusiness.json`,
     fundABiz.interface.format(ethers.utils.FormatTypes.json).toString()
-  );
-
-  // Mock ERC-20 Token Contract
-  const mockErc20Contract = await ethers.getContract("MockERC20");
-  fs.writeFileSync(
-    `${frontEndAbiLocation}MockERC20.json`,
-    mockErc20Contract.interface.format(ethers.utils.FormatTypes.json).toString()
   );
 
   // NFT perks contracts

@@ -25,6 +25,7 @@ interface IFundABusiness {
     error DecisionMade();
     error AlreadyApproved();
     error ReleasingMoreThanFundRaised();
+    error InvalidAmount();
 
     struct FundingTierCost {
         // Tier of NFT available
@@ -77,9 +78,6 @@ interface IFundABusiness {
     // emmited if the caller is not the owner of a given NFTtier
     event NotTheTrueOwner(address indexed caller, uint256 tier, uint256 tokenId);
 
-    ///@dev sets the allowed ERC20 tokens for the campaign
-    function setAllowedToken(address _allowedErc20Token) external;
-
     ///@dev sets the NFT perks contracts
     function setNftPerkContracts(NftTierContract[] memory _nftTierContracts) external;
 
@@ -113,13 +111,13 @@ interface IFundABusiness {
     /// @param _funder the contributor address
     /// @param _tier funding category
     /// @param _quantity number of tiers
-    function contributeOnBehalfOf(address _funder, uint256 _tier, uint256 _quantity) external;
+    function contributeOnBehalfOf(address _funder, uint256 _tier, uint256 _quantity) external payable;
 
     /// @notice Contribute fund from the connected wallet for the open campaign
     /// @dev only accepts ERC-20 deposit when campaign is open
     /// @param _tier funding category
     /// @param _quantity number of tiers
-    function contribute(uint256 _tier, uint256 _quantity) external;
+    function contribute(uint256 _tier, uint256 _quantity) external payable;
 
     /// @notice The funders can claim refund only when the campaign failed
     /// @dev Claim a refund on behalf of a funder
@@ -154,7 +152,7 @@ interface IFundABusiness {
     /// @param _tiers array of funding category
     /// @param _quantities array of number of tiers purchased by each funder
     /// All the arrays must be the same length
-    function fiatContributeOnBehalfOf(address[] memory _funders, uint256[] memory _tiers, uint256[] memory _quantities, uint256 _totalAmount) external;
+    function fiatContributeOnBehalfOf(address[] memory _funders, uint256[] memory _tiers, uint256[] memory _quantities) external payable;
 
     /// @notice Manager role can close the funding round before the decision time passed
     /// @dev reason for closing the campaign is required
@@ -186,4 +184,8 @@ interface IFundABusiness {
     /// @dev returns the balance of the business address
     function getBusinessBalance() external view returns (uint256);
 
+    /// @notice Returns the equivalent amount of a token in native coin (eg. Eth, Matic)
+    /// @param _tier funding category
+    /// @param _quantity number of tiers
+    function getOneNativeCoinRate(uint256 _tier, uint256 _quantity) external returns (uint256);
 }

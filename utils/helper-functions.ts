@@ -4,7 +4,6 @@ import { getContractAddress, Interface, Result } from "ethers/lib/utils";
 import { run, ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types";
 import {
-  MockERC20 as MockERC20Type,
   BasicNft as BasicNftType,
   FundABusiness as FundABusinessType,
 } from "../types";
@@ -14,6 +13,7 @@ import {
   VERIFICATION_BLOCK_CONFIRMATIONS,
   VERIFICATION_BLOCK_CONFIRMATIONS_DEV,
 } from "../utils/constants";
+import { ContractType } from "hardhat/internal/hardhat-network/stack-traces/model";
 
 export const getCurrentTimestamp = (): number => {
   return Math.round(new Date().getTime() / 1000);
@@ -104,13 +104,13 @@ export const getFutureContractAddress = async (
   return futureAddress;
 };
 
-export const sumOfElementsInArray = (elements: number[]): Promise<number> =>{
-  let sum: number = 0
-  for (let index in elements){
-    sum += elements[index]
+export const sumOfElementsInArray = (elements: number[]): number => {
+  let sum: number = 0;
+  for (let index in elements) {
+    sum += elements[index];
   }
-  return sum
-}
+  return sum;
+};
 
 export const getEventEmitted = async (
   tx: ContractTransaction,
@@ -229,11 +229,15 @@ export const getBlockConfirmations = (
 
 export async function getAccountBalances(
   accounts: string[],
-  token: MockERC20Type
+  fundABiz: FundABusinessType
 ): Promise<number[]> {
   let accountsBalances: number[] = [];
+  // const provider = ethers.getDefaultProvider();
+
   for (let i = 0; i < accounts.length; i++) {
-    const balanceWei = (await token.balanceOf(accounts[i])).toString();
+    const balanceWei = (
+      await fundABiz.provider.getBalance(accounts[i])
+    ).toString();
     const balanceEth = ethers.utils.formatEther(balanceWei);
     accountsBalances.push(Number(balanceEth));
   }
@@ -245,32 +249,7 @@ export type TestAccount = {
   signer: SignerWithAddress;
 } & {
   fundABiz: FundABusinessType;
-  mockErc20: MockERC20Type;
   nftTier1Contract: BasicNftType;
   nftTier2Contract: BasicNftType;
   nftTier3Contract: BasicNftType;
 };
-
-export async function crowdFundABiz(
-  funders: TestAccount[],
-  quantities: number[]
-) {
-  for (let i = 0; i < funders.length; i++) {
-    const tx1: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[0],
-      quantities[i]
-    );
-    await tx1.wait();
-    const tx2: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[1],
-      quantities[i]
-    );
-    await tx2.wait();
-    const tx3: ContractTransaction = await funders[i].fundABiz.contribute(
-      TIERS[2],
-      quantities[i]
-    );
-    await tx3.wait();
-  }
-  console.log("Business crowd-funded!");
-}

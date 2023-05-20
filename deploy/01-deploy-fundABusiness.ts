@@ -10,10 +10,13 @@ import {
   MILESTONE_SCHEDULE,
   nftMockAddresses,
   MOAT_WALLETS,
-  ALLOWED_TOKEN,
 } from "../utils/constants";
 import { getBlockConfirmations } from "../utils/helper-functions";
-import { BasicNft as BasicNftType, MockERC20 as MockERC20Type } from "../types";
+import {
+  BasicNft as BasicNftType,
+  MockV3Aggregator as MockV3AggregatorType,
+} from "../types";
+import { networkConfig } from "../helper-hardhat-config";
 import { verify } from "../utils/helper-functions";
 import { ContractTransaction } from "ethers";
 
@@ -23,19 +26,20 @@ const deployFundABusiness: DeployFunction = async function (
   const { getNamedAccounts, deployments, network } = hre;
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
-  let business_account: string, treasury_account: string, allowedToken: string;
-
-  const mockErc20Contract: MockERC20Type = await ethers.getContract(
-    "MockERC20"
-  );
+  let business_account: string, treasury_account: string, price_feed: string;
 
   if (developmentChains.includes(network.name)) {
     ({ business_account, treasury_account } = await getNamedAccounts());
-    allowedToken = mockErc20Contract.address;
+    const mockAggregator: MockV3AggregatorType = await ethers.getContract(
+      "MockV3Aggregator"
+    );
+    price_feed = mockAggregator.address;
   } else {
     business_account = MOAT_WALLETS[1];
     treasury_account = MOAT_WALLETS[2];
-    allowedToken = ALLOWED_TOKEN ? ALLOWED_TOKEN : mockErc20Contract.address;
+    price_feed =
+      networkConfig[network.name].ethUsdPriceFeed! ||
+      networkConfig[network.name].maticUsdPriceFeed!;
   }
   const waitBlockConfirmations: number = getBlockConfirmations(
     developmentChains,
@@ -45,10 +49,10 @@ const deployFundABusiness: DeployFunction = async function (
   log("Deploying FundABusiness...");
 
   const args = [
-    allowedToken,
     business_account,
     treasury_account,
     MOAT_FEE_NUMERATOR,
+    price_feed,
     AMOUNTS_TO_BE_RAISED,
     CAMPAIGN_PERIOD,
     FUNDERS_TIERS_AND_COST,

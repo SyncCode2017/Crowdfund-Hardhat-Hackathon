@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -64,7 +65,6 @@ export interface FundABusinessInterface extends utils.Interface {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "MANAGER_ROLE()": FunctionFragment;
     "PAUSER_ROLE()": FunctionFragment;
-    "allowedErc20Token()": FunctionFragment;
     "approveMilestoneAndReleaseFund(uint256)": FunctionFragment;
     "areNftTokensSet()": FunctionFragment;
     "businessAddress()": FunctionFragment;
@@ -80,12 +80,13 @@ export interface FundABusinessInterface extends utils.Interface {
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
     "cumFundReleased()": FunctionFragment;
-    "fiatContributeOnBehalfOf(address[],uint256[],uint256[],uint256)": FunctionFragment;
+    "fiatContributeOnBehalfOf(address[],uint256[],uint256[])": FunctionFragment;
     "fractionOfMilestone(uint256)": FunctionFragment;
     "fundRaised()": FunctionFragment;
     "fundRaisedMinusFee()": FunctionFragment;
     "getBusinessBalance()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
+    "getOneNativeCoinRate(uint256,uint256)": FunctionFragment;
     "getQuantityOfTierBought(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getTierPrice(uint256)": FunctionFragment;
@@ -102,7 +103,6 @@ export interface FundABusinessInterface extends utils.Interface {
     "paused()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "setAllowedToken(address)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
     "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
@@ -125,7 +125,6 @@ export interface FundABusinessInterface extends utils.Interface {
       | "DEFAULT_ADMIN_ROLE"
       | "MANAGER_ROLE"
       | "PAUSER_ROLE"
-      | "allowedErc20Token"
       | "approveMilestoneAndReleaseFund"
       | "areNftTokensSet"
       | "businessAddress"
@@ -147,6 +146,7 @@ export interface FundABusinessInterface extends utils.Interface {
       | "fundRaisedMinusFee"
       | "getBusinessBalance"
       | "getFundersAddresses"
+      | "getOneNativeCoinRate"
       | "getQuantityOfTierBought"
       | "getRoleAdmin"
       | "getTierPrice"
@@ -163,7 +163,6 @@ export interface FundABusinessInterface extends utils.Interface {
       | "paused"
       | "renounceRole"
       | "revokeRole"
-      | "setAllowedToken"
       | "setBusinessAddress"
       | "setCampaignAndDecisionPeriod"
       | "setFundingTiersAndCosts"
@@ -191,10 +190,6 @@ export interface FundABusinessInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "PAUSER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allowedErc20Token",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -266,8 +261,7 @@ export interface FundABusinessInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>[]
     ]
   ): string;
   encodeFunctionData(
@@ -289,6 +283,10 @@ export interface FundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getFundersAddresses",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getOneNativeCoinRate",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getQuantityOfTierBought",
@@ -347,10 +345,6 @@ export interface FundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAllowedToken",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setBusinessAddress",
@@ -417,10 +411,6 @@ export interface FundABusinessInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "PAUSER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowedErc20Token",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -499,6 +489,10 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getOneNativeCoinRate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getQuantityOfTierBought",
     data: BytesLike
   ): Result;
@@ -541,10 +535,6 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAllowedToken",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setBusinessAddress",
     data: BytesLike
@@ -816,8 +806,6 @@ export interface FundABusiness extends BaseContract {
 
     PAUSER_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    allowedErc20Token(overrides?: CallOverrides): Promise<[string]>;
-
     approveMilestoneAndReleaseFund(
       _milestoneNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -868,14 +856,14 @@ export interface FundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     cumFundReleased(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -884,8 +872,7 @@ export interface FundABusiness extends BaseContract {
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     fractionOfMilestone(
@@ -900,6 +887,12 @@ export interface FundABusiness extends BaseContract {
     getBusinessBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -974,11 +967,6 @@ export interface FundABusiness extends BaseContract {
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1057,8 +1045,6 @@ export interface FundABusiness extends BaseContract {
 
   PAUSER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  allowedErc20Token(overrides?: CallOverrides): Promise<string>;
-
   approveMilestoneAndReleaseFund(
     _milestoneNumber: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1109,14 +1095,14 @@ export interface FundABusiness extends BaseContract {
   contribute(
     _tier: PromiseOrValue<BigNumberish>,
     _quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contributeOnBehalfOf(
     _funder: PromiseOrValue<string>,
     _tier: PromiseOrValue<BigNumberish>,
     _quantity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1125,8 +1111,7 @@ export interface FundABusiness extends BaseContract {
     _funders: PromiseOrValue<string>[],
     _tiers: PromiseOrValue<BigNumberish>[],
     _quantities: PromiseOrValue<BigNumberish>[],
-    _totalAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   fractionOfMilestone(
@@ -1141,6 +1126,12 @@ export interface FundABusiness extends BaseContract {
   getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+  getOneNativeCoinRate(
+    _tier: PromiseOrValue<BigNumberish>,
+    _quantity: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   getQuantityOfTierBought(
     _tier: PromiseOrValue<BigNumberish>,
@@ -1215,11 +1206,6 @@ export interface FundABusiness extends BaseContract {
   revokeRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setAllowedToken(
-    _allowedErc20Token: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1298,8 +1284,6 @@ export interface FundABusiness extends BaseContract {
 
     PAUSER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    allowedErc20Token(overrides?: CallOverrides): Promise<string>;
-
     approveMilestoneAndReleaseFund(
       _milestoneNumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1366,7 +1350,6 @@ export interface FundABusiness extends BaseContract {
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1382,6 +1365,12 @@ export interface FundABusiness extends BaseContract {
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -1454,11 +1443,6 @@ export interface FundABusiness extends BaseContract {
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1647,8 +1631,6 @@ export interface FundABusiness extends BaseContract {
 
     PAUSER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowedErc20Token(overrides?: CallOverrides): Promise<BigNumber>;
-
     approveMilestoneAndReleaseFund(
       _milestoneNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1699,14 +1681,14 @@ export interface FundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1715,8 +1697,7 @@ export interface FundABusiness extends BaseContract {
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     fractionOfMilestone(
@@ -1731,6 +1712,12 @@ export interface FundABusiness extends BaseContract {
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getQuantityOfTierBought(
       _tier: PromiseOrValue<BigNumberish>,
@@ -1805,11 +1792,6 @@ export interface FundABusiness extends BaseContract {
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1891,8 +1873,6 @@ export interface FundABusiness extends BaseContract {
 
     PAUSER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    allowedErc20Token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     approveMilestoneAndReleaseFund(
       _milestoneNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1945,14 +1925,14 @@ export interface FundABusiness extends BaseContract {
     contribute(
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contributeOnBehalfOf(
       _funder: PromiseOrValue<string>,
       _tier: PromiseOrValue<BigNumberish>,
       _quantity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     cumFundReleased(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1961,8 +1941,7 @@ export interface FundABusiness extends BaseContract {
       _funders: PromiseOrValue<string>[],
       _tiers: PromiseOrValue<BigNumberish>[],
       _quantities: PromiseOrValue<BigNumberish>[],
-      _totalAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     fractionOfMilestone(
@@ -1981,6 +1960,12 @@ export interface FundABusiness extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFundersAddresses(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getOneNativeCoinRate(
+      _tier: PromiseOrValue<BigNumberish>,
+      _quantity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2057,11 +2042,6 @@ export interface FundABusiness extends BaseContract {
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAllowedToken(
-      _allowedErc20Token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

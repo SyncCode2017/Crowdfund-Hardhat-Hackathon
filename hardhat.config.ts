@@ -50,6 +50,15 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      {
+        version: "0.6.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
     ],
   },
   etherscan: {
