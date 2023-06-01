@@ -13,7 +13,6 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 import "./interfaces/IFundABusiness.sol";
 import "./interfaces/INftPerks.sol";
-import "hardhat/console.sol";
 
 /**@title MOAT Crowd-funding Contract
  * @custom:security-contact hello@moat.com
@@ -264,19 +263,6 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         _releaseFundToBusiness(_milestoneNumber);
     }
 
-    /// @dev Proves that a caller owns a particular NFT token by emitting IsTheTrueOwner event
-    /// It emits NotTheTrueOwner event if the caller is not the owner
-    /// @param _tier funding or perks category
-    /// @param _tokenId id of the nft token
-    function isOwnerOf(uint256 _tier, uint256 _tokenId) external {
-        address _owner = nftContractOf[_tier].ownerOf(_tokenId);
-        if (msg.sender == _owner) {
-            emit IsTheTrueOwner(_owner, _tier, _tokenId);
-        } else {
-            emit NotTheTrueOwner(msg.sender, _tier, _tokenId);
-        }
-    }
-
     /// @notice Contribute fund on behalf of another address for the open campaign.
     /// @dev only accepts ERC-20 deposit when campaign is open
     /// @param _funder the contributor address
@@ -353,31 +339,6 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         businessBalance[businessAddress] = 0;
         _sendNativeCoin(businessAddress, _amount);
         emit FundReleased(businessAddress, _amount, block.timestamp);
-    }
-
-    /// @notice Manager role can contribute fund on behalf of other addresses before decision time passed.
-    /// @dev only accepts ERC-20 deposit before campaign decision time passed
-    /// @param _funders array of funder addresses
-    /// @param _tiers array of funding category
-    /// @param _quantities array of number of tiers purchased by each funder
-    /// All the arrays must be the same length
-    function fiatContributeOnBehalfOf(address[] memory _funders, uint256[] memory _tiers, uint256[] memory _quantities) external payable onlyRole(MANAGER_ROLE) nonReentrant whenNotPaused {
-        verdict = _campaignVerdict();
-        // check whether decision time has passed and decision has been made
-        if (block.timestamp < campaignStartTime || block.timestamp > campaignDecisionTime || verdict != CampaignState.UNDECIDED) revert NotReceivingFunds();
-        // check the arrays have the same length
-        if (_funders.length != _tiers.length || _funders.length != _quantities.length) revert InvalidValues();
-        if (msg.value <= 0) revert InvalidAmount();
-        fundRaised += msg.value;
-        // update state
-        for (uint256 i = 0; i < _funders.length; ++i) {
-            if (_funders[i] == address(0)) revert ZeroAddress();
-            uint256 _fundingAmountNaiveCoin = getOneNativeCoinRate(_tiers[i], _quantities[i]);
-            // check whether the _tier is allowed
-            if (_fundingAmountNaiveCoin <= 0) revert InvalidTierAndQuantity();
-            _updateFunderBalance(_funders[i], _tiers[i], _quantities[i], _fundingAmountNaiveCoin);
-        }
-        emit FiatContributionReceived(msg.sender, msg.value);
     }
 
     /// @dev Pauses the contract

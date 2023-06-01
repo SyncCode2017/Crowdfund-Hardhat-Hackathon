@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert, expect } from "chai";
-import { BigNumber, ContractTransaction } from "ethers";
+import { ContractTransaction } from "ethers";
 import { deployments, ethers, getNamedAccounts } from "hardhat";
 import {
-  ONE,
   nftMockAddresses,
   TIERS,
   TIER1_PRICE,
@@ -436,113 +435,7 @@ describe("FundABusiness Unit Tests", function () {
         .withArgs(bob.address, TIERS[2]);
     });
   });
-  describe("fiatContributeOnBehalfOf test function", function () {
-    it("allows manager role to deposit on behalf of fiat funders", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      const initialBals: number[] = await getAccountBalances(
-        [deployer.address],
-        fundABiz
-      );
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      const tx: ContractTransaction =
-        await deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        );
-      await tx.wait();
-      const finalBals: number[] = await getAccountBalances(
-        [deployer.address],
-        fundABiz
-      );
-      const currentFunders: string[] =
-        await deployer.fundABiz.getFundersAddresses();
 
-      checkArrayElements(currentFunders, fundersAddresses);
-      assert.equal(Math.floor(initialBals[0] - finalBals[0]), totalAmountInEth);
-    });
-    it("allows only manager role to deposit on behalf of fiat funders", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      await expect(
-        bob.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        )
-      ).to.be.rejectedWith("AccessControl");
-    });
-    it("rejects deposit when made outside campaign start time and campaign decision time window", async () => {
-      // movetime to when campaign has started
-      await moveTime(1000);
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      await expect(
-        deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        )
-      ).to.be.rejectedWith("NotReceivingFunds()");
-    });
-
-    it("rejects deposit when contract is paused", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      // pause the contract
-      const tx1 = await deployer.fundABiz.pause();
-      await tx1.wait();
-      await expect(
-        deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        )
-      ).to.be.rejectedWith("Pausable: paused");
-    });
-
-    it("rejects deposit when arrays of unequal lengths are entered", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      await expect(
-        deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        )
-      ).to.be.rejectedWith("InvalidValues()");
-    });
-
-    it("emits FiatContributionReceived", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      const totalAmountInEth = 20;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-      await expect(
-        deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        )
-      )
-        .to.emit(fundABiz, "FiatContributionReceived")
-        .withArgs(deployer.address, totalAmountInWei);
-    });
-  });
   describe("claimNft/claimNftFor function", function () {
     beforeEach("crowd fund a business", async () => {
       // movetime to when campaign has started
@@ -572,15 +465,15 @@ describe("FundABusiness Unit Tests", function () {
           Number(await nftTier2Contract.getTokenCounter()) - 1;
         const lastTokenIdTier3 =
           Number(await nftTier3Contract.getTokenCounter()) - 1;
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
+        expect(await nftTier1Contract.ownerOf(lastTokenIdTier1)).to.be.equal(
+          funders[i].address
+        );
+        expect(await nftTier2Contract.ownerOf(lastTokenIdTier2)).to.be.equal(
+          funders[i].address
+        );
+        expect(await nftTier3Contract.ownerOf(lastTokenIdTier3)).to.be.equal(
+          funders[i].address
+        );
       }
     });
     it("allows airdropping NFT perks to funders", async () => {
@@ -612,15 +505,16 @@ describe("FundABusiness Unit Tests", function () {
           Number(await nftTier2Contract.getTokenCounter()) - 1;
         const lastTokenIdTier3 =
           Number(await nftTier3Contract.getTokenCounter()) - 1;
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
+
+        expect(await nftTier1Contract.ownerOf(lastTokenIdTier1)).to.be.equal(
+          funders[i].address
+        );
+        expect(await nftTier2Contract.ownerOf(lastTokenIdTier2)).to.be.equal(
+          funders[i].address
+        );
+        expect(await nftTier3Contract.ownerOf(lastTokenIdTier3)).to.be.equal(
+          funders[i].address
+        );
       }
     });
     it("rejects non-funders from claiming NFT", async () => {
@@ -909,85 +803,7 @@ describe("FundABusiness Unit Tests", function () {
         .rejected;
     });
   });
-  describe("isOwnerOf function", function () {
-    beforeEach("Crowd fund a business", async () => {
-      // movetime to when campaign has started
-      await moveTime(31968000);
-      await crowdFundABiz(funders, quantities);
-    });
-    it("emits IsTheTrueOwner event", async () => {
-      await moveTime(31968000);
-      await setNftContracts(nftMockAddresses);
 
-      for (let i = 0; i < funders.length; i++) {
-        const tx1: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[0]
-        );
-        await tx1.wait();
-        const tx2: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[1]
-        );
-        await tx2.wait();
-        const tx3: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[2]
-        );
-        await tx3.wait();
-        const lastTokenIdTier1 =
-          Number(await nftTier1Contract.getTokenCounter()) - 1;
-        const lastTokenIdTier2 =
-          Number(await nftTier2Contract.getTokenCounter()) - 1;
-        const lastTokenIdTier3 =
-          Number(await nftTier3Contract.getTokenCounter()) - 1;
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[0], lastTokenIdTier1);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[1], lastTokenIdTier2);
-        await expect(funders[i].fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3))
-          .to.emit(fundABiz, "IsTheTrueOwner")
-          .withArgs(funders[i].address, TIERS[2], lastTokenIdTier3);
-      }
-    });
-    it("emits NotTheTrueOwner event if the caller is not the owner", async () => {
-      await moveTime(31968000);
-      await setNftContracts(nftMockAddresses);
-
-      for (let i = 0; i < funders.length; i++) {
-        const tx1: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[0]
-        );
-        await tx1.wait();
-        const tx2: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[1]
-        );
-        await tx2.wait();
-        const tx3: ContractTransaction = await funders[i].fundABiz.claimNft(
-          TIERS[2]
-        );
-        await tx3.wait();
-        const lastTokenIdTier1 =
-          Number(await nftTier1Contract.getTokenCounter()) - 1;
-        const lastTokenIdTier2 =
-          Number(await nftTier2Contract.getTokenCounter()) - 1;
-        const lastTokenIdTier3 =
-          Number(await nftTier3Contract.getTokenCounter()) - 1;
-        await expect(deployer.fundABiz.isOwnerOf(TIERS[0], lastTokenIdTier1))
-          .to.emit(fundABiz, "NotTheTrueOwner")
-          .withArgs(deployer.address, TIERS[0], lastTokenIdTier1);
-        await expect(
-          business_account.fundABiz.isOwnerOf(TIERS[1], lastTokenIdTier2)
-        )
-          .to.emit(fundABiz, "NotTheTrueOwner")
-          .withArgs(business_account.address, TIERS[1], lastTokenIdTier2);
-        await expect(
-          treasury_account.fundABiz.isOwnerOf(TIERS[2], lastTokenIdTier3)
-        )
-          .to.emit(fundABiz, "NotTheTrueOwner")
-          .withArgs(treasury_account.address, TIERS[2], lastTokenIdTier3);
-      }
-    });
-  });
   describe("approveMilestoneAndReleaseFund function", function () {
     beforeEach("Crowd fund a business", async () => {
       // movetime to when campaign has started
@@ -1041,18 +857,6 @@ describe("FundABusiness Unit Tests", function () {
       assert.equal(businessBal, amountReleased);
     });
     it("releases all the tokens after the last milestone", async () => {
-      // fiat contribution
-      const totalAmountInEth = 100;
-      const totalAmountInWei = ONE.mul(totalAmountInEth);
-
-      const tx1: ContractTransaction =
-        await deployer.fundABiz.fiatContributeOnBehalfOf(
-          fundersAddresses,
-          [TIERS[0], TIERS[0], TIERS[0], TIERS[0], TIERS[0]],
-          quantities,
-          { value: totalAmountInWei }
-        );
-      await tx1.wait();
       // movetime to when campaign has closed
       await moveTime(31968000);
       // approve all the milestones

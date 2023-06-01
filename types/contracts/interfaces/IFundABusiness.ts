@@ -70,13 +70,11 @@ export interface IFundABusinessInterface extends utils.Interface {
     "closeFundingRound(uint8)": FunctionFragment;
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
-    "fiatContributeOnBehalfOf(address[],uint256[],uint256[])": FunctionFragment;
     "getBusinessBalance()": FunctionFragment;
     "getFundersAddresses()": FunctionFragment;
     "getOneNativeCoinRate(uint256,uint256)": FunctionFragment;
     "getQuantityOfTierBought(uint256)": FunctionFragment;
     "getTierPrice(uint256)": FunctionFragment;
-    "isOwnerOf(uint256,uint256)": FunctionFragment;
     "setBusinessAddress(address)": FunctionFragment;
     "setCampaignAndDecisionPeriod(uint256[])": FunctionFragment;
     "setFundingTiersAndCosts((uint256,uint256)[])": FunctionFragment;
@@ -98,13 +96,11 @@ export interface IFundABusinessInterface extends utils.Interface {
       | "closeFundingRound"
       | "contribute"
       | "contributeOnBehalfOf"
-      | "fiatContributeOnBehalfOf"
       | "getBusinessBalance"
       | "getFundersAddresses"
       | "getOneNativeCoinRate"
       | "getQuantityOfTierBought"
       | "getTierPrice"
-      | "isOwnerOf"
       | "setBusinessAddress"
       | "setCampaignAndDecisionPeriod"
       | "setFundingTiersAndCosts"
@@ -153,14 +149,6 @@ export interface IFundABusinessInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "fiatContributeOnBehalfOf",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[]
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getBusinessBalance",
     values?: undefined
   ): string;
@@ -179,10 +167,6 @@ export interface IFundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getTierPrice",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isOwnerOf",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setBusinessAddress",
@@ -248,10 +232,6 @@ export interface IFundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fiatContributeOnBehalfOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getBusinessBalance",
     data: BytesLike
   ): Result;
@@ -271,7 +251,6 @@ export interface IFundABusinessInterface extends utils.Interface {
     functionFragment: "getTierPrice",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "isOwnerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setBusinessAddress",
     data: BytesLike
@@ -311,22 +290,16 @@ export interface IFundABusinessInterface extends utils.Interface {
     "CampaignSuccessful(uint256)": EventFragment;
     "ContributionReceived(address,uint256)": EventFragment;
     "ContributionRefunded(address,uint256)": EventFragment;
-    "FiatContributionReceived(address,uint256)": EventFragment;
     "FundReleased(address,uint256,uint256)": EventFragment;
-    "IsTheTrueOwner(address,uint256,uint256)": EventFragment;
     "NFTRewardClaimed(address,uint256)": EventFragment;
-    "NotTheTrueOwner(address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CampaignFailed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CampaignSuccessful"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionRefunded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FiatContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundReleased"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "IsTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTRewardClaimed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NotTheTrueOwner"): EventFragment;
 }
 
 export interface CampaignFailedEventObject {
@@ -374,18 +347,6 @@ export type ContributionRefundedEvent = TypedEvent<
 export type ContributionRefundedEventFilter =
   TypedEventFilter<ContributionRefundedEvent>;
 
-export interface FiatContributionReceivedEventObject {
-  funder: string;
-  amount: BigNumber;
-}
-export type FiatContributionReceivedEvent = TypedEvent<
-  [string, BigNumber],
-  FiatContributionReceivedEventObject
->;
-
-export type FiatContributionReceivedEventFilter =
-  TypedEventFilter<FiatContributionReceivedEvent>;
-
 export interface FundReleasedEventObject {
   business: string;
   amount: BigNumber;
@@ -398,18 +359,6 @@ export type FundReleasedEvent = TypedEvent<
 
 export type FundReleasedEventFilter = TypedEventFilter<FundReleasedEvent>;
 
-export interface IsTheTrueOwnerEventObject {
-  owner: string;
-  tier: BigNumber;
-  tokenId: BigNumber;
-}
-export type IsTheTrueOwnerEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  IsTheTrueOwnerEventObject
->;
-
-export type IsTheTrueOwnerEventFilter = TypedEventFilter<IsTheTrueOwnerEvent>;
-
 export interface NFTRewardClaimedEventObject {
   funder: string;
   tier: BigNumber;
@@ -421,18 +370,6 @@ export type NFTRewardClaimedEvent = TypedEvent<
 
 export type NFTRewardClaimedEventFilter =
   TypedEventFilter<NFTRewardClaimedEvent>;
-
-export interface NotTheTrueOwnerEventObject {
-  caller: string;
-  tier: BigNumber;
-  tokenId: BigNumber;
-}
-export type NotTheTrueOwnerEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  NotTheTrueOwnerEventObject
->;
-
-export type NotTheTrueOwnerEventFilter = TypedEventFilter<NotTheTrueOwnerEvent>;
 
 export interface IFundABusiness extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -506,13 +443,6 @@ export interface IFundABusiness extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     getBusinessBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<[string[]]>;
@@ -532,12 +462,6 @@ export interface IFundABusiness extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     setBusinessAddress(
       _businessAddress: PromiseOrValue<string>,
@@ -629,13 +553,6 @@ export interface IFundABusiness extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  fiatContributeOnBehalfOf(
-    _funders: PromiseOrValue<string>[],
-    _tiers: PromiseOrValue<BigNumberish>[],
-    _quantities: PromiseOrValue<BigNumberish>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
@@ -655,12 +572,6 @@ export interface IFundABusiness extends BaseContract {
     _tier: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  isOwnerOf(
-    _tier: PromiseOrValue<BigNumberish>,
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   setBusinessAddress(
     _businessAddress: PromiseOrValue<string>,
@@ -752,13 +663,6 @@ export interface IFundABusiness extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<string[]>;
@@ -778,12 +682,6 @@ export interface IFundABusiness extends BaseContract {
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setBusinessAddress(
       _businessAddress: PromiseOrValue<string>,
@@ -853,15 +751,6 @@ export interface IFundABusiness extends BaseContract {
       tier?: null
     ): ContributionRefundedEventFilter;
 
-    "FiatContributionReceived(address,uint256)"(
-      funder?: null,
-      amount?: null
-    ): FiatContributionReceivedEventFilter;
-    FiatContributionReceived(
-      funder?: null,
-      amount?: null
-    ): FiatContributionReceivedEventFilter;
-
     "FundReleased(address,uint256,uint256)"(
       business?: null,
       amount?: null,
@@ -873,33 +762,11 @@ export interface IFundABusiness extends BaseContract {
       time?: null
     ): FundReleasedEventFilter;
 
-    "IsTheTrueOwner(address,uint256,uint256)"(
-      owner?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): IsTheTrueOwnerEventFilter;
-    IsTheTrueOwner(
-      owner?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): IsTheTrueOwnerEventFilter;
-
     "NFTRewardClaimed(address,uint256)"(
       funder?: null,
       tier?: null
     ): NFTRewardClaimedEventFilter;
     NFTRewardClaimed(funder?: null, tier?: null): NFTRewardClaimedEventFilter;
-
-    "NotTheTrueOwner(address,uint256,uint256)"(
-      caller?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): NotTheTrueOwnerEventFilter;
-    NotTheTrueOwner(
-      caller?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): NotTheTrueOwnerEventFilter;
   };
 
   estimateGas: {
@@ -948,13 +815,6 @@ export interface IFundABusiness extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     getBusinessBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     getFundersAddresses(overrides?: CallOverrides): Promise<BigNumber>;
@@ -973,12 +833,6 @@ export interface IFundABusiness extends BaseContract {
     getTierPrice(
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setBusinessAddress(
@@ -1072,13 +926,6 @@ export interface IFundABusiness extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     getBusinessBalance(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1101,12 +948,6 @@ export interface IFundABusiness extends BaseContract {
     getTierPrice(
       _tier: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setBusinessAddress(

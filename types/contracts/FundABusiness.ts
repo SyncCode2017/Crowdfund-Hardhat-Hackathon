@@ -80,7 +80,6 @@ export interface FundABusinessInterface extends utils.Interface {
     "contribute(uint256,uint256)": FunctionFragment;
     "contributeOnBehalfOf(address,uint256,uint256)": FunctionFragment;
     "cumFundReleased()": FunctionFragment;
-    "fiatContributeOnBehalfOf(address[],uint256[],uint256[])": FunctionFragment;
     "fractionOfMilestone(uint256)": FunctionFragment;
     "fundRaised()": FunctionFragment;
     "fundRaisedMinusFee()": FunctionFragment;
@@ -95,7 +94,6 @@ export interface FundABusinessInterface extends utils.Interface {
     "hasRole(bytes32,address)": FunctionFragment;
     "isAFunder(address)": FunctionFragment;
     "isMilestoneApproved(uint256)": FunctionFragment;
-    "isOwnerOf(uint256,uint256)": FunctionFragment;
     "minTargetAmount()": FunctionFragment;
     "moatFeeNumerator()": FunctionFragment;
     "nftContractOf(uint256)": FunctionFragment;
@@ -140,7 +138,6 @@ export interface FundABusinessInterface extends utils.Interface {
       | "contribute"
       | "contributeOnBehalfOf"
       | "cumFundReleased"
-      | "fiatContributeOnBehalfOf"
       | "fractionOfMilestone"
       | "fundRaised"
       | "fundRaisedMinusFee"
@@ -155,7 +152,6 @@ export interface FundABusinessInterface extends utils.Interface {
       | "hasRole"
       | "isAFunder"
       | "isMilestoneApproved"
-      | "isOwnerOf"
       | "minTargetAmount"
       | "moatFeeNumerator"
       | "nftContractOf"
@@ -257,14 +253,6 @@ export interface FundABusinessInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "fiatContributeOnBehalfOf",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[]
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "fractionOfMilestone",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -319,10 +307,6 @@ export interface FundABusinessInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isMilestoneApproved",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isOwnerOf",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "minTargetAmount",
@@ -468,10 +452,6 @@ export interface FundABusinessInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fiatContributeOnBehalfOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "fractionOfMilestone",
     data: BytesLike
   ): Result;
@@ -515,7 +495,6 @@ export interface FundABusinessInterface extends utils.Interface {
     functionFragment: "isMilestoneApproved",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "isOwnerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "minTargetAmount",
     data: BytesLike
@@ -589,11 +568,8 @@ export interface FundABusinessInterface extends utils.Interface {
     "CampaignSuccessful(uint256)": EventFragment;
     "ContributionReceived(address,uint256)": EventFragment;
     "ContributionRefunded(address,uint256)": EventFragment;
-    "FiatContributionReceived(address,uint256)": EventFragment;
     "FundReleased(address,uint256,uint256)": EventFragment;
-    "IsTheTrueOwner(address,uint256,uint256)": EventFragment;
     "NFTRewardClaimed(address,uint256)": EventFragment;
-    "NotTheTrueOwner(address,uint256,uint256)": EventFragment;
     "Paused(address)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
@@ -605,11 +581,8 @@ export interface FundABusinessInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "CampaignSuccessful"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContributionRefunded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FiatContributionReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundReleased"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "IsTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTRewardClaimed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NotTheTrueOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -662,18 +635,6 @@ export type ContributionRefundedEvent = TypedEvent<
 export type ContributionRefundedEventFilter =
   TypedEventFilter<ContributionRefundedEvent>;
 
-export interface FiatContributionReceivedEventObject {
-  funder: string;
-  amount: BigNumber;
-}
-export type FiatContributionReceivedEvent = TypedEvent<
-  [string, BigNumber],
-  FiatContributionReceivedEventObject
->;
-
-export type FiatContributionReceivedEventFilter =
-  TypedEventFilter<FiatContributionReceivedEvent>;
-
 export interface FundReleasedEventObject {
   business: string;
   amount: BigNumber;
@@ -686,18 +647,6 @@ export type FundReleasedEvent = TypedEvent<
 
 export type FundReleasedEventFilter = TypedEventFilter<FundReleasedEvent>;
 
-export interface IsTheTrueOwnerEventObject {
-  owner: string;
-  tier: BigNumber;
-  tokenId: BigNumber;
-}
-export type IsTheTrueOwnerEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  IsTheTrueOwnerEventObject
->;
-
-export type IsTheTrueOwnerEventFilter = TypedEventFilter<IsTheTrueOwnerEvent>;
-
 export interface NFTRewardClaimedEventObject {
   funder: string;
   tier: BigNumber;
@@ -709,18 +658,6 @@ export type NFTRewardClaimedEvent = TypedEvent<
 
 export type NFTRewardClaimedEventFilter =
   TypedEventFilter<NFTRewardClaimedEvent>;
-
-export interface NotTheTrueOwnerEventObject {
-  caller: string;
-  tier: BigNumber;
-  tokenId: BigNumber;
-}
-export type NotTheTrueOwnerEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  NotTheTrueOwnerEventObject
->;
-
-export type NotTheTrueOwnerEventFilter = TypedEventFilter<NotTheTrueOwnerEvent>;
 
 export interface PausedEventObject {
   account: string;
@@ -868,13 +805,6 @@ export interface FundABusiness extends BaseContract {
 
     cumFundReleased(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     fractionOfMilestone(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -936,12 +866,6 @@ export interface FundABusiness extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1107,13 +1031,6 @@ export interface FundABusiness extends BaseContract {
 
   cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
-  fiatContributeOnBehalfOf(
-    _funders: PromiseOrValue<string>[],
-    _tiers: PromiseOrValue<BigNumberish>[],
-    _quantities: PromiseOrValue<BigNumberish>[],
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   fractionOfMilestone(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1175,12 +1092,6 @@ export interface FundABusiness extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  isOwnerOf(
-    _tier: PromiseOrValue<BigNumberish>,
-    _tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1346,13 +1257,6 @@ export interface FundABusiness extends BaseContract {
 
     cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     fractionOfMilestone(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1414,12 +1318,6 @@ export interface FundABusiness extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1536,15 +1434,6 @@ export interface FundABusiness extends BaseContract {
       tier?: null
     ): ContributionRefundedEventFilter;
 
-    "FiatContributionReceived(address,uint256)"(
-      funder?: null,
-      amount?: null
-    ): FiatContributionReceivedEventFilter;
-    FiatContributionReceived(
-      funder?: null,
-      amount?: null
-    ): FiatContributionReceivedEventFilter;
-
     "FundReleased(address,uint256,uint256)"(
       business?: null,
       amount?: null,
@@ -1556,33 +1445,11 @@ export interface FundABusiness extends BaseContract {
       time?: null
     ): FundReleasedEventFilter;
 
-    "IsTheTrueOwner(address,uint256,uint256)"(
-      owner?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): IsTheTrueOwnerEventFilter;
-    IsTheTrueOwner(
-      owner?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): IsTheTrueOwnerEventFilter;
-
     "NFTRewardClaimed(address,uint256)"(
       funder?: null,
       tier?: null
     ): NFTRewardClaimedEventFilter;
     NFTRewardClaimed(funder?: null, tier?: null): NFTRewardClaimedEventFilter;
-
-    "NotTheTrueOwner(address,uint256,uint256)"(
-      caller?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): NotTheTrueOwnerEventFilter;
-    NotTheTrueOwner(
-      caller?: PromiseOrValue<string> | null,
-      tier?: null,
-      tokenId?: null
-    ): NotTheTrueOwnerEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
@@ -1693,13 +1560,6 @@ export interface FundABusiness extends BaseContract {
 
     cumFundReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     fractionOfMilestone(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1760,12 +1620,6 @@ export interface FundABusiness extends BaseContract {
     isMilestoneApproved(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1937,13 +1791,6 @@ export interface FundABusiness extends BaseContract {
 
     cumFundReleased(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fiatContributeOnBehalfOf(
-      _funders: PromiseOrValue<string>[],
-      _tiers: PromiseOrValue<BigNumberish>[],
-      _quantities: PromiseOrValue<BigNumberish>[],
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     fractionOfMilestone(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -2010,12 +1857,6 @@ export interface FundABusiness extends BaseContract {
     isMilestoneApproved(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isOwnerOf(
-      _tier: PromiseOrValue<BigNumberish>,
-      _tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     minTargetAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;

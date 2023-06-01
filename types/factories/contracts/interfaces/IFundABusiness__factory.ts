@@ -200,25 +200,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "funder",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "FiatContributionReceived",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
         name: "business",
         type: "address",
       },
@@ -242,31 +223,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tier",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "IsTheTrueOwner",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "address",
         name: "funder",
@@ -280,31 +236,6 @@ const _abi = [
       },
     ],
     name: "NFTRewardClaimed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tier",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "NotTheTrueOwner",
     type: "event",
   },
   {
@@ -437,29 +368,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address[]",
-        name: "_funders",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "_tiers",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "_quantities",
-        type: "uint256[]",
-      },
-    ],
-    name: "fiatContributeOnBehalfOf",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "getBusinessBalance",
     outputs: [
@@ -545,24 +453,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_tier",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "isOwnerOf",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

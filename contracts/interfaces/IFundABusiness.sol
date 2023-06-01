@@ -61,8 +61,6 @@ interface IFundABusiness {
 
     // emitted when a contribution is received from an address
     event ContributionReceived(address funder, uint256 tier);
-    // emmitted when manager role contributess on behalf of funders who contributed through fiat
-    event FiatContributionReceived(address funder, uint256 amount);
     // emitted when a funder claims his refund after a campaign has been declared a failure
     event ContributionRefunded(address funder, uint256 tier);
     // emitted when campaign is declared successful
@@ -73,10 +71,6 @@ interface IFundABusiness {
     event FundReleased(address business, uint256 amount, uint256 time);
     // emitted when a funder claims his NFT perks after the campaign has been declared successful
     event NFTRewardClaimed(address funder, uint256 tier);
-    // emmited if the caller is the owner of the given NFTtier
-    event IsTheTrueOwner(address indexed owner, uint256 tier, uint256 tokenId);
-    // emmited if the caller is not the owner of a given NFTtier
-    event NotTheTrueOwner(address indexed caller, uint256 tier, uint256 tokenId);
 
     ///@dev sets the NFT perks contracts
     function setNftPerkContracts(NftTierContract[] memory _nftTierContracts) external;
@@ -146,14 +140,6 @@ interface IFundABusiness {
     /// @dev Only the authorised business wallet can withdraw
     function withdrawFundRaised() external;
 
-    /// @notice Manager role can contribute fund on behalf of other addresses before decision time passed.
-    /// @dev only accepts ERC-20 deposit before campaign decision time passed
-    /// @param _funders array of funder addresses
-    /// @param _tiers array of funding category
-    /// @param _quantities array of number of tiers purchased by each funder
-    /// All the arrays must be the same length
-    function fiatContributeOnBehalfOf(address[] memory _funders, uint256[] memory _tiers, uint256[] memory _quantities) external payable;
-
     /// @notice Manager role can close the funding round before the decision time passed
     /// @dev reason for closing the campaign is required
     /// @param _reasonForEnding enum only accepts TARGETMET or FAILURE
@@ -163,12 +149,6 @@ interface IFundABusiness {
     /// @dev milestone can be approved in any order
     /// @param _milestoneNumber the milestone to be approved
     function approveMilestoneAndReleaseFund(uint256 _milestoneNumber) external;
-
-    /// @dev Proves that a caller owns a particular NFT token by emitting IsTheTrueOwner event
-    /// It emits NotTheTrueOwner event if the caller is not the owner
-    /// @param _tier funding or perks category
-    /// @param _tokenId id of the nft token
-    function isOwnerOf(uint256 _tier, uint256 _tokenId) external;
 
     /// @dev returns the array of all funder addresses
     function getFundersAddresses() external view returns (address[] memory);
