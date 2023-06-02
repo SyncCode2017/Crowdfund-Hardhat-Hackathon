@@ -14,7 +14,8 @@
     "./test",
     "Lock.ts",
     "utils/set-nft-contracts.ts",
-    "proveddit/provedditEvent.ts"
+    "proveddit/provedditEvent.ts",
+    "fundABiz-nft-integration-test.ts"
   ],
   "exclude": [],
   "files": [

@@ -4,9 +4,9 @@ import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
 import "hardhat-contract-sizer";
 // import "hardhat-ethers-deploy";
-// import fs = require("fs");
+import fs = require("fs");
 
-// import "./tasks/"
+import "./tasks/service-tasks";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -23,16 +23,20 @@ const POLYGON_MUMBAI_KEY =
   process.env.POLYGONSCAN_API_KEY ||
   "0000000000000000000000000000000000000000000000000000000000000000";
 
-// import "./tasks"
+// import "./tasks";
 
-// let blockNumberToPin
-// try {
-//     const blockOffset = 20 // Keep above 10 (largest chain re-org was 7 block deeps), while also keeping to a relatively small value to get the 'safest' recent block
-//     blockNumberToPin = JSON.parse(fs.readFileSync("./utils/config.json").toString()).blockNumber
-//     blockNumberToPin -=  blockOffset // subtract block number by blockOffset to remove the risk of uncle blocks and increase Alchemy performance
-// } catch (err) {
-//     console.log("There was an error parsing blockNumber from JSON file. Try running `hh updateBlockNumber` separately from your terminal before running hh test")
-// }
+let blockNumberToPin;
+try {
+  const blockOffset = 20; // Keep above 10 (largest chain re-org was 7 block deeps), while also keeping to a relatively small value to get the 'safest' recent block
+  blockNumberToPin = JSON.parse(
+    fs.readFileSync("./utils/config.json").toString()
+  ).blockNumber;
+  blockNumberToPin -= blockOffset; // subtract block number by blockOffset to remove the risk of uncle blocks and increase Alchemy performance
+} catch (err) {
+  console.log(
+    "There was an error parsing blockNumber from JSON file. Try running `hh updateBlockNumber` separately from your terminal before running hh test"
+  );
+}
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -76,20 +80,21 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   networks: {
-    /**
-        hardhat: {
-            forking: {
-                url         : `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // Fork live Ethereum mainnet when testing locally
-                blockNumber : blockNumberToPin, // We pin to a block so we don't keep requesting Alchemy for the chain's new state so tests run faster. Update this frequently
-            },
-        },
-        localhost: {
-            forking: {
-                url         : `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // As above
-                blockNumber : blockNumberToPin, // As above
-            },
-        },
-        */
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // Fork live Ethereum mainnet when testing locally
+        blockNumber: blockNumberToPin, // We pin to a block so we don't keep requesting Alchemy for the chain's new state so tests run faster. Update this frequently
+      },
+      // chainId: 1,
+    },
+    localhost: {
+      forking: {
+        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // As above
+        blockNumber: blockNumberToPin, // As above
+      },
+      // chainId: 1,
+    },
+
     goerli: {
       url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_GOERLI_KEY}`,
       accounts: [`${PRIVATE_KEY}`],
@@ -106,9 +111,9 @@ const config: HardhatUserConfig = {
       accounts: [`${PRIVATE_KEY}`],
       saveDeployments: true,
     },
-    hardhat: {
-      chainId: 31337,
-    },
+    // hardhat: {
+    //   chainId: 31337,
+    // },
   },
   namedAccounts: {
     deployer: {

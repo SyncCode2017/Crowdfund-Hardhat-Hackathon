@@ -14,11 +14,6 @@ import {
   MOAT_WALLETS,
 } from "../utils/constants";
 import { getBlockConfirmations, verify } from "../utils/helper-functions";
-import {
-  NftPerks as NftPerksType,
-  FundABusiness as FundABusinessType,
-} from "../types";
-import setNftContracts from "../utils/set-nft-contracts";
 
 const deployNftPerks: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -32,7 +27,6 @@ const deployNftPerks: DeployFunction = async function (
     developmentChains,
     network
   );
-  const fundABiz: FundABusinessType = await ethers.getContract("FundABusiness");
 
   if (developmentChains.includes(network.name)) {
     receiver = treasury_account;
@@ -78,45 +72,8 @@ const deployNftPerks: DeployFunction = async function (
       await verify(nftPerksAddresses[index], argsNFT);
     }
   }
-  // Set up Minter role for the NFT Contracts
-  const SET_NFT_PERKS = process.env.SET_NFT_PERKS!;
-  if (SET_NFT_PERKS === "true") {
-    log("-----------------------------------------------------------");
-    log("Setting up NFT contracts for Minter role...");
 
-    for (let index in nftPerksContracts) {
-      const nftTierContract: NftPerksType = await ethers.getContractAt(
-        "NftPerks",
-        nftPerksAddresses[index],
-        deployer
-      );
-
-      const minter = await nftTierContract.MINTER_ROLE();
-      const adminRole = await nftTierContract.DEFAULT_ADMIN_ROLE();
-      // Grant the FundABusiness Contract the minter role
-      const tx1: ContractTransaction = await nftTierContract.grantRole(
-        minter,
-        fundABiz.address,
-        { from: deployer }
-      );
-      await tx1.wait();
-      // Revoke default admin role
-      const revokeTx = await nftTierContract.revokeRole(adminRole, deployer, {
-        from: deployer,
-      });
-      await revokeTx.wait();
-      // Renounce deployer's minter role
-      const renounceTx = await nftTierContract.renounceRole(minter, deployer, {
-        from: deployer,
-      });
-      await renounceTx.wait();
-      log(
-        "Minter role granted to FundABusiness Contract and Default Admin Role revoked!"
-      );
-      // Set the NFT Perks Contracts to the FundABusiness Contract
-      await setNftContracts(nftPerksAddresses);
-    }
-  }
+  log("-----------------------------------------------------------");
 };
 
 export default deployNftPerks;

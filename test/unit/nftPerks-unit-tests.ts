@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert, expect } from "chai";
 import { BigNumber, ContractTransaction } from "ethers";
-import { deployments, ethers, getNamedAccounts } from "hardhat";
+import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import {
   ONE,
   nftPerksAddresses,
@@ -11,19 +11,20 @@ import {
   TOKEN_URIS,
   ROYALTY_FEE,
   ERC20_AMOUNT,
-} from "../utils/constants";
+  developmentChains,
+} from "../../utils/constants";
 import {
   NftPerks as NftPerksType,
   IERC165__factory as IERC165Factory,
   IAccessControl__factory as IAccessControlFactory,
-} from "../types";
+} from "../../types";
 import {
   getInterfaceID,
   getInterfaceIDArray,
   setupUser,
-} from "../utils/helper-functions";
-import { IAccessControlInterface } from "../types/@openzeppelin/contracts/access/IAccessControl";
-import { IERC165Interface } from "../types/@openzeppelin/contracts/utils/introspection/IERC165";
+} from "../../utils/helper-functions";
+import { IAccessControlInterface } from "../../types/@openzeppelin/contracts/access/IAccessControl";
+import { IERC165Interface } from "../../types/@openzeppelin/contracts/utils/introspection/IERC165";
 
 const setup = deployments.createFixture(async () => {
   await deployments.fixture("all");
@@ -62,6 +63,7 @@ type TestAccount = {
 } & {
   nftTierContract: NftPerksType;
 };
+
 describe("NftPerks Unit Tests", function () {
   let deployer: TestAccount,
     alice: TestAccount,

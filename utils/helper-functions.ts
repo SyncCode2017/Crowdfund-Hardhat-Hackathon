@@ -4,7 +4,7 @@ import { getContractAddress, Interface, Result } from "ethers/lib/utils";
 import { run, ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types";
 import {
-  BasicNft as BasicNftType,
+  NftPerks as NftPerksType,
   FundABusiness as FundABusinessType,
 } from "../types";
 
@@ -249,7 +249,7 @@ export type TestAccount = {
   signer: SignerWithAddress;
 } & {
   fundABiz: FundABusinessType;
-  nftTier1Contract: BasicNftType;
-  nftTier2Contract: BasicNftType;
-  nftTier3Contract: BasicNftType;
+  nftTier1Contract: NftPerksType;
+  nftTier2Contract: NftPerksType;
+  nftTier3Contract: NftPerksType;
 };

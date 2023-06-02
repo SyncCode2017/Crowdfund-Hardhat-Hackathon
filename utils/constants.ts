@@ -32,12 +32,12 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 // [unix start time, unix end time, time (in seconds) required to make a decision]
 export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
 
-// For running localhost for front-end
+// For running localhost / testnet for front-end
 // export const CAMPAIGN_PERIOD: number[] = [1683477930, 1718601630, 79200];
 
-export const TIER1_PRICE: number = 100; //ONE.mul(100);
-export const TIER2_PRICE: number = 200; //ONE.mul(200);
-export const TIER3_PRICE: number = 300; //ONE.mul(300);
+export const TIER1_PRICE: number = 100;
+export const TIER2_PRICE: number = 200;
+export const TIER3_PRICE: number = 300;
 export const sumOfTiersPrices = 100 + 200 + 300;
 
 /** FUNDERS_TIERS_AND_COST = [

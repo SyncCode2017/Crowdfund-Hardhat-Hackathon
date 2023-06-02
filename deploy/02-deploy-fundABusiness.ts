@@ -8,17 +8,18 @@ import {
   CAMPAIGN_PERIOD,
   FUNDERS_TIERS_AND_COST,
   MILESTONE_SCHEDULE,
-  nftMockAddresses,
+  nftPerksAddresses,
   MOAT_WALLETS,
 } from "../utils/constants";
 import { getBlockConfirmations } from "../utils/helper-functions";
 import {
-  BasicNft as BasicNftType,
+  NftPerks as NftPerksType,
   MockV3Aggregator as MockV3AggregatorType,
 } from "../types";
 import { networkConfig } from "../helper-hardhat-config";
 import { verify } from "../utils/helper-functions";
 import { ContractTransaction } from "ethers";
+import setNftContracts from "../utils/set-nft-contracts";
 
 const deployFundABusiness: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -78,37 +79,49 @@ const deployFundABusiness: DeployFunction = async function (
     await verify(fundABiz.address, args);
   }
 
-  // Set up Mock NFT Contract on local network
-  if (developmentChains.includes(network.name)) {
-    log("-----------------------------------------------------------");
-    log("Setting up Mock NFT contracts for Minter role...");
+  // Set up NFT Contract on local network
+  // if (developmentChains.includes(network.name)) {
+  log("-----------------------------------------------------------");
+  log("Setting up NFT contracts for Minter role...");
 
-    for (let i = 0; i < nftMockAddresses.length; i++) {
-      const nftTierContract: BasicNftType = await ethers.getContractAt(
-        "BasicNft",
-        nftMockAddresses[i],
+  for (let i = 0; i < nftPerksAddresses.length; i++) {
+    const nftTierContract: NftPerksType = await ethers.getContractAt(
+      "NftPerks",
+      nftPerksAddresses[i],
+      deployer
+    );
+
+    const minter = await nftTierContract.MINTER_ROLE();
+
+    const tx1: ContractTransaction = await nftTierContract.grantRole(
+      minter,
+      fundABiz.address,
+      { from: deployer }
+    );
+    await tx1.wait();
+  }
+
+  log("Nft Minter role granted to FundABusiness Contract !");
+
+  //  Set the NFT Perks Contracts to the FundABusiness Contract and Default Admin Role revoked
+  const SET_NFT_PERKS = process.env.SET_NFT_PERKS!;
+  if (SET_NFT_PERKS === "true") {
+    await setNftContracts(nftPerksAddresses);
+
+    for (let i = 0; i < nftPerksAddresses.length; i++) {
+      const nftTierContract: NftPerksType = await ethers.getContractAt(
+        "NftPerks",
+        nftPerksAddresses[i],
         deployer
       );
 
-      const minter = await nftTierContract.MINTER_ROLE();
       const adminRole = await nftTierContract.DEFAULT_ADMIN_ROLE();
-
-      const tx1: ContractTransaction = await nftTierContract.grantRole(
-        minter,
-        fundABiz.address,
-        { from: deployer }
-      );
-      await tx1.wait();
 
       const revokeTx = await nftTierContract.revokeRole(adminRole, deployer, {
         from: deployer,
       });
       await revokeTx.wait();
     }
-
-    log(
-      "Mock Nft Minter role granted to FundABusiness Contract and Default Admin Role revoked!"
-    );
   }
 };
 
