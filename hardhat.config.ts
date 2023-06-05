@@ -80,20 +80,20 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   networks: {
-    hardhat: {
-      forking: {
-        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // Fork live Ethereum mainnet when testing locally
-        blockNumber: blockNumberToPin, // We pin to a block so we don't keep requesting Alchemy for the chain's new state so tests run faster. Update this frequently
-      },
-      // chainId: 1,
-    },
-    localhost: {
-      forking: {
-        url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // As above
-        blockNumber: blockNumberToPin, // As above
-      },
-      // chainId: 1,
-    },
+    // hardhat: {
+    //   forking: {
+    //     url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // Fork live Ethereum mainnet when testing locally
+    //     blockNumber: blockNumberToPin, // We pin to a block so we don't keep requesting Alchemy for the chain's new state so tests run faster. Update this frequently
+    //   },
+    //   // chainId: 1,
+    // },
+    // localhost: {
+    //   forking: {
+    //     url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_MAINNET_KEY}`, // As above
+    //     blockNumber: blockNumberToPin, // As above
+    //   },
+    //   // chainId: 1,
+    // },
 
     goerli: {
       url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_GOERLI_KEY}`,
@@ -111,9 +111,9 @@ const config: HardhatUserConfig = {
       accounts: [`${PRIVATE_KEY}`],
       saveDeployments: true,
     },
-    // hardhat: {
-    //   chainId: 31337,
-    // },
+    hardhat: {
+      chainId: 31337,
+    },
   },
   namedAccounts: {
     deployer: {

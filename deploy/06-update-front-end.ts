@@ -51,7 +51,7 @@ async function updateContractAddresses() {
   );
   if (chainId in fundABizAddress) {
     if (!fundABizAddress[chainId]["FundABusiness"].includes(fundABiz.address)) {
-      fundABizAddress[chainId]["FundABusiness"].push(fundABiz.address);
+      fundABizAddress[chainId]["FundABusiness"].unshift(fundABiz.address);
     }
   } else {
     fundABizAddress[chainId] = { FundABusiness: [fundABiz.address] };
@@ -70,7 +70,9 @@ async function updateContractAddresses() {
         ) ||
         null
       ) {
-        nftPerkAddress[chainId][`NftPerks${i}`].push(nftPerksAddresses[i - 1]);
+        nftPerkAddress[chainId][`NftPerks${i}`].unshift(
+          nftPerksAddresses[i - 1]
+        );
       }
     } else {
       const nft = `NftPerks${i}`;

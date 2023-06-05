@@ -274,7 +274,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         // check whether the _tier is allowed
         if (_fundingAmountNativeCoin <= 0) revert InvalidTierAndQuantity();
         // check whether the right amount was paid
-        if (msg.value != _fundingAmountNativeCoin) revert InvalidAmount();
+        if (msg.value < _fundingAmountNativeCoin) revert InvalidAmount();
         fundRaised += msg.value;
         _updateFunderBalance(_funder, _tier, _quantity, msg.value);
     }
