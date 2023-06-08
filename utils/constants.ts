@@ -33,7 +33,7 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 // export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
 
 // For running localhost / testnet for front-end
-export const CAMPAIGN_PERIOD: number[] = [1686004350, 1749154230, 79200];
+export const CAMPAIGN_PERIOD: number[] = [1686159510, 1749154230, 79200];
 
 export const TIER1_PRICE: number = 100;
 export const TIER2_PRICE: number = 200;
