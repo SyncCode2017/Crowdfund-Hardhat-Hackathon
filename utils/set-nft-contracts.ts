@@ -23,13 +23,15 @@ const setNftContracts = async (
         [TIER2, "NFT_TIER2_ADDRESS"],
         [TIER3, "NFT_TIER3_ADDRESS"],
     ] */
-    let TIERS_AND_NFT_CONTRACTS: [number, string][] = [];
+    let TIERS_AND_NFT_CONTRACTS: any[] = [];
     for (let i = 0; i < nftContractAddresses.length; i++) {
       TIERS_AND_NFT_CONTRACTS.push([TIERS[i], nftContractAddresses[i]]);
     }
 
     // Set NFT Contracts
+
     const tx: ContractTransaction = await fundABiz.setNftPerkContracts(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       TIERS_AND_NFT_CONTRACTS,
       { from: deployer }
     );

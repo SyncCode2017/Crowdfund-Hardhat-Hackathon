@@ -32,11 +32,12 @@ While we explore other options, Chainlink Hackathon started. We wanted to partic
 1. Hardhat framework for building smart contracts.
 2. Chainlink Datafeed used for the "contribute" function in the FundABusiness contract to get the current
    price of ETH so that the value of the Tier Perks can be accurately calculated in ETH.
-3. Next.js, Web3uikit and Moralis were used to build the frontend.
+3. Next.js, Tailwind.css, Web3uikit and Moralis were used to build the frontend.
 4. Smart contract tests, frontend and backend are written in Typescript.
 5. Serverless framework was used to manage resources on AWS.
 6. AWS Lambda, API Gateway and RDS Postgress were used to create the backend.
 7. Alchemy API were used to fetch accounts' Moat NFTs on the View Your NFTs page.
+8. IPFS, NFTStorage + Filecoin used to host the NFT metadata and images.
 
 ## Running this Project Locally
 

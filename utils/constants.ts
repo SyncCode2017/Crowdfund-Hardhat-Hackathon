@@ -30,10 +30,10 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 // For unit test
 // [unix start time, unix end time, time (in seconds) required to make a decision]
-// export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
+export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
 
 // For running localhost / testnet for front-end
-export const CAMPAIGN_PERIOD: number[] = [1686159510, 1749154230, 79200];
+// export const CAMPAIGN_PERIOD: number[] = [1686310773, 1749154230, 79200];
 
 export const TIER1_PRICE: number = 100;
 export const TIER2_PRICE: number = 200;
@@ -82,7 +82,7 @@ export const discount_array = [10, 20, 30];
 export const access_array = ["vip1", "vip2", "vip3"];
 
 export const frontEndContractsFile = [
-  "../front-end-nextjs/constants/fundABizAddress.json",
-  "../front-end-nextjs/constants/nftPerksAddresses.json",
+  "../crowd-fund-frontend-backend-hackathon/constants/fundABizAddress.json",
+  "../crowd-fund-frontend-backend-hackathon/constants/nftPerksAddresses.json",
 ];
-export const frontEndAbiLocation = "../front-end-nextjs/constants/";
+export const frontEndAbiLocation = "../crowd-fund-frontend-backend-hackathon/constants/";
