@@ -30,7 +30,7 @@ export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 // For unit test
 // [unix start time, unix end time, time (in seconds) required to make a decision]
-export const CAMPAIGN_PERIOD: number[] = [1710656430, 1718601630, 10000];
+export const CAMPAIGN_PERIOD: number[] = [1716182430, 1758345630, 10000];
 
 // For running localhost / testnet for front-end
 // export const CAMPAIGN_PERIOD: number[] = [1686310773, 1749154230, 79200];

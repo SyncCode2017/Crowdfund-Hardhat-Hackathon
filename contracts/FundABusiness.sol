@@ -174,7 +174,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     }
 
     /// @param _campaignTimesAndDecision array of length 3.
-    function setCampaignAndDecisionPeriod(uint256[] memory _campaignTimesAndDecision) public onlyRole(MANAGER_ROLE) {
+    function setCampaignAndDecisionPeriod(uint256[] memory _campaignTimesAndDecision) public onlyRole(MANAGER_ROLE) nonReentrant {
         if (_campaignTimesAndDecision.length != 3) revert InvalidValues();
         if (block.timestamp < campaignStartTime) {
             campaignStartTime = _campaignTimesAndDecision[0];
@@ -232,7 +232,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     /// @notice Manager role can close the funding round before the decision time passed
     /// @dev reason for closing the campaign is required
     /// @param _reasonForEnding enum only accepts TARGETMET or FAILURE
-    function closeFundingRound(EndCampaign _reasonForEnding) external onlyRole(MANAGER_ROLE) {
+    function closeFundingRound(EndCampaign _reasonForEnding) external onlyRole(MANAGER_ROLE) nonReentrant {
         verdict = _campaignVerdict();
         // check whether decision has been made
         if (block.timestamp > campaignDecisionTime && verdict != CampaignState.UNDECIDED) revert DecisionMade();
@@ -260,6 +260,7 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         if (verdict != CampaignState.SUCCESS) revert CampaignUnsuccessful();
         if (isMilestoneApproved[_milestoneNumber] == true) revert AlreadyApproved();
         isMilestoneApproved[_milestoneNumber] = true;
+        _deductFeeAndSend();
         _releaseFundToBusiness(_milestoneNumber);
     }
 
@@ -293,8 +294,8 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         // set funder's balance to zero
         tierBalanceOf[_funder][_tier] = 0;
         nativeCoinContributedBy[_funder][_tier] = 0;
-        _sendNativeCoin(_funder, _amountInNativeCoin);
         emit ContributionRefunded(_funder, _tier);
+        _sendNativeCoin(_funder, _amountInNativeCoin);
     }
 
     /// @notice The funders can claim NFT perks when the campaign is successful
@@ -337,8 +338,8 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
         uint256 _amount = businessBalance[businessAddress];
         if (_amount <= 0) revert NoFundDue();
         businessBalance[businessAddress] = 0;
-        _sendNativeCoin(businessAddress, _amount);
         emit FundReleased(businessAddress, _amount, block.timestamp);
+        _sendNativeCoin(businessAddress, _amount);
     }
 
     /// @dev Pauses the contract
@@ -356,7 +357,6 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
     /// based on the outcome of the campaign
     function _campaignVerdict() internal returns (CampaignState) {
         if (block.timestamp > campaignDecisionTime && fundRaised >= minTargetAmount && verdict != CampaignState.FAILURE) {
-            _deductFeeAndSend();
             return CampaignState.SUCCESS;
         } else if (block.timestamp > campaignDecisionTime && fundRaised < minTargetAmount && verdict != CampaignState.SUCCESS) {
             emit CampaignFailed(block.timestamp);
@@ -415,8 +415,8 @@ contract FundABusiness is IFundABusiness, AccessControl, ReentrancyGuard, Pausab
             moatFee = fundRaised.mul(moatFeeNumerator).div(100000);
             fundRaisedMinusFee = fundRaised.sub(moatFee);
             isFeeTaken = true;
-            _sendNativeCoin(treasuryAddress, moatFee);
             emit CampaignSuccessful(block.timestamp);
+            _sendNativeCoin(treasuryAddress, moatFee);
         }
     }
 
